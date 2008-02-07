@@ -1,0 +1,24 @@
+/*! \mainpage LMX :: Linked MatriX library
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * \section install_sec Installation
+ *
+ * Before installing this software you must first install the next libraries:
+ *
+ * 
+ * \subsection step1 Step 1:
+ * Untar the ball.
+ * 
+ * \subsection step2 Step 2: run configure script ("./configure") on your shell.
+ *
+ * \subsection step3 Step 3: run make with either "gmake" or "make" commands.
+ *
+ * \subsection step4 Step 4: (optional) you can check before installing with "gmake check".
+ *
+ * \subsection step5 Step 5: install the library with "gmake install".
+ *  
+ * etc...
+ */
