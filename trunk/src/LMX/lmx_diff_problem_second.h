@@ -64,7 +64,6 @@ class DiffProblemSecond
        , b_jacobianByParts(0)
        , b_alpha(0)
        , b_convergence(0)
-       , b_steptriggered(0)
     {}
 
     /** Destructor. */
@@ -168,8 +167,6 @@ class DiffProblemSecond
 
         );
 
-    void setStepTriggered( void (Sys::* stepTriggered_in)() );
-
     void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
 
     void iterationResidueByParts( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
@@ -196,9 +193,7 @@ class DiffProblemSecond
     bool b_jacobianByParts; ///< 0 if setJacobian is called, 1 if setJacobianByParts is called.
     bool b_alpha; ///< 1 if HHT-alpha integrator is set.
     bool b_convergence; ///< 1 if external convergence function is set.
-    bool b_steptriggered; ///< 1 if stepTriggered function is set.
     double alpha;
-    void (Sys::* stepTriggered)(); ///< function called at the end of each time step
     std::vector< lmx::Vector<T>* > residueParts;
     std::vector< lmx::Matrix<T>* > jacobianParts;
     void (Sys::* res)( lmx::Vector<T>& residue,
@@ -418,17 +413,6 @@ template <typename Sys, typename T>
   b_convergence = 1;
 }
 
-  /**
-   * Defines a function call between time steps.
-   *
-   */
-template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::setStepTriggered( void (Sys::* stepTriggered_in)() )
-{
-  this->stepTriggered = stepTriggered_in;
-  b_steptriggered = 1;
-}
-
 
 /**
  * Function for NLSolver residue computation.
@@ -605,7 +589,7 @@ template <typename Sys, typename T>
     this->writeStepFiles();
     this->theConfiguration->nextStep( this->stepSize );
     this->theIntegrator->advance( );
-    if(b_steptriggered) (this->theSystem->*stepTriggered)( );
+    if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
   }
   this->writeStepFiles();
 }
@@ -677,7 +661,7 @@ template <typename Sys, typename T>
     this->theIntegrator->advance( );
     theNLSolver.solve( );
     if(b_alpha) *residueParts[3] = *residueParts[0];
-    if(b_steptriggered) (this->theSystem->*stepTriggered)( );
+    if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
   }
   this->writeStepFiles();
 }

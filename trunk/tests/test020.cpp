@@ -70,5 +70,7 @@ int main(int argc, char *argv[])
   theProblem.setEvaluation( &MyDiffSystem::myEvaluation );
   theProblem.solve();
 
+  cout << "End configuration: " << theProblem.getConfiguration( 0, 0);
+
   return EXIT_SUCCESS;
 }

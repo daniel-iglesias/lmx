@@ -59,7 +59,12 @@ template <typename Sys, typename T=double> class DiffProblem{
   public:
 
     /** Empty constructor. */
-    DiffProblem() : theConfiguration(0), theIntegrator(0), theNLSolver(0), theSystem(0)
+    DiffProblem()
+	 : theConfiguration(0)
+	 , theIntegrator(0)
+	 , theNLSolver(0)
+	 , theSystem(0)
+     , b_steptriggered(0)
     {}
 
     /** Destructor. */
@@ -78,6 +83,12 @@ template <typename Sys, typename T=double> class DiffProblem{
     void setInitialConfiguration( lmx::Vector<T>& q_o, lmx::Vector<T>& qdot_o );
     void setOutputFile( char* filename, int diffOrder );
     void setTimeParameters( double to_in, double tf_in, double step_size_in );
+    void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
+	void setStepTriggered( void (Sys::* stepTriggered_in)() );
+
+	// needs documentation:
+	const lmx::Vector<T>& getConfiguration( int order, int step=0)
+	{ return theConfiguration->getConf( order, step ); }
 
     /**
      * Solve method to be implemented in derived classes.
@@ -92,6 +103,7 @@ template <typename Sys, typename T=double> class DiffProblem{
     virtual void solveImplicit( ) = 0;
 
   protected:
+    bool b_steptriggered; ///< 1 if stepTriggered function is set.
     lmx::Configuration<T>* theConfiguration; ///< Pointer to the Configuration object, (auto-created).
     lmx::IntegratorBase<T>* theIntegrator; ///< Pointer to the Integrator object, (auto-created).
     lmx::NLSolver<T>* theNLSolver; ///< Pointer to the NLSolver object, (auto-created).
@@ -100,6 +112,7 @@ template <typename Sys, typename T=double> class DiffProblem{
     double tf; ///< Value of the finish time stored from input.
     double stepSize; ///< Value of the time step stored from input.
     std::map< int, std::ofstream* > fileOutMap; ///< collection of output streams for each diff-order requested.
+    void (Sys::* stepTriggered)(); ///< function called at the end of each time step
 };
 
 
@@ -243,6 +256,18 @@ template <typename Sys, typename T>
     *(it->second) << endl;
   }
 }
+
+  /**
+   * Defines a function call between time steps.
+   *
+   */
+template <typename Sys, typename T>
+    void DiffProblem<Sys,T>::setStepTriggered( void (Sys::* stepTriggered_in)() )
+{
+  this->stepTriggered = stepTriggered_in;
+  b_steptriggered = 1;
+}
+
 
 }; // namespace lmx
 
