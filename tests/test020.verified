@@ -1,17 +1,9 @@
 --------------------------------------------------------
 An initial condition has been set:
-Derivative order = 0, q_0 = Vector (2) = 
-0 
-0 
-
---------------------------------------------------------
+Derivative order = 0--------------------------------------------------------
 --------------------------------------------------------
 An initial condition has been set:
-Derivative order = 1, q_0 = Vector (2) = 
-0 
-0 
-
---------------------------------------------------------
+Derivative order = 1--------------------------------------------------------
 --------------------------------------------------------
 Configuration has been resized to the following vectors:
 Derivative order = 0, vector size = 2
@@ -21,110 +13,33 @@ Derivative order = 2, vector size = 2
 --------------------------------------------------------
              Solving step number 1 time = 0.1
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0 
-0 
-
-Derivative order = 0, q_t = Vector (2) = 
-0 
-0 
-
 --------------------------------------------------------
              Solving step number 2 time = 0.2
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.01 
-0.01 
-
-Derivative order = 0, q_t = Vector (2) = 
-0 
-0 
-
 --------------------------------------------------------
              Solving step number 3 time = 0.3
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.03 
-0.03 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.001 
-0.001 
-
 --------------------------------------------------------
              Solving step number 4 time = 0.4
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.06 
-0.06 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.004 
-0.004 
-
 --------------------------------------------------------
              Solving step number 5 time = 0.5
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.1 
-0.1 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.01 
-0.01 
-
 --------------------------------------------------------
              Solving step number 6 time = 0.6
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.15 
-0.15 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.02 
-0.02 
-
 --------------------------------------------------------
              Solving step number 7 time = 0.7
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.21 
-0.21 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.035 
-0.035 
-
 --------------------------------------------------------
              Solving step number 8 time = 0.8
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.28 
-0.28 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.056 
-0.056 
-
 --------------------------------------------------------
              Solving step number 9 time = 0.9
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.36 
-0.36 
-
-Derivative order = 0, q_t = Vector (2) = 
-0.084 
-0.084 
-
 --------------------------------------------------------
              Solving step number 10 time = 1
 --------------------------------------------------------
-Derivative order = 1, q_t = Vector (2) = 
-0.45 
-0.45 
-
-Derivative order = 0, q_t = Vector (2) = 
+End configuration: Vector (2) = 
 0.12 
 0.12 
-

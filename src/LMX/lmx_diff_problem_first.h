@@ -320,9 +320,9 @@ template <typename Sys, typename T>
     this->theConfiguration->nextStep( this->stepSize );
     this->theIntegrator->advance( );
     theNLSolver.solve( 20 );
+    if(this->b_steptriggered) (this->theSystem->*stepTriggered)( );
   }
   this->writeStepFiles();
-  (this->theSystem->*stepTriggered)( );
 }
 
 }; // namespace lmx
