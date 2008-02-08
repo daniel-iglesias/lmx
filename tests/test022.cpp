@@ -52,6 +52,8 @@ class MyDiffSystem{
                      )
     {
       qddot -= K*q;
+	  qddot(0) += time;
+	  qddot(1) += 2*time;
     }
 
     void myResidue( lmx::Vector<double>& residue,
