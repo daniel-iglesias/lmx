@@ -1,0 +1,48 @@
+/*! \mainpage LMX :: Linked MatriX library
+ *
+ * \section intro_sec Introduction
+ *
+ * This library makes numerical programming in C++ flexible and powerful by giving
+ * the programmer both, an intuitive --math like-- matrix manipulation interface
+ * and an efficient functions collection.
+ *
+ * The LMX library provides matrix and vector manipulation, algebra operations,
+ * linear systems management, including solvers, non-linear solvers and ODE systems
+ * explicit and implicit integrators.
+ * 
+ * LMX offers the following main capabilities:
+ * 
+ *   - Built-in set of matrix and vector algebra operations.
+ *
+ *   - Links to hi-performance libraries without any change in the user's API (coding syntax).
+ *
+ *   - Dense and sparse storage selectable both, in compilation time but also in execution time.
+ *
+ *   - Multiple data support thanks to the intensive use of templates.
+ * 
+ *   - Linear and non linear systems manipulation, including numerous solvers.
+ *
+ *   - Differential systems (ODE) treatment, also including solvers, both explicit and implicit.
+ *
+ * \section install_sec Installation
+ *
+ * The library is a collection of header files, so you can go ahead and include them at compilation time.
+ * 
+ * The other option (recommended) is to use the automatic build system from gnu (automake, configure, etc.). 
+ * This process is very simple and adds the possibility for building and executing some basic tests and to automaticly
+ * install (copy) the headers to the default location (or other if the --prefix option is specified).
+ * 
+ * For automatic build, follow the next procedure:
+ *
+ *   - Step 1: Untar the ball.
+ * 
+ *   - Step 2: run configure script ("./configure") on your shell. The default path for installing is "/usr/local/include/".
+ *     If you want another target for the headers, please launch the command with the "--prefix=/to/my/installation/dir/" option.
+ *
+ *   - Step 3: run make with either "gmake" or "make" commands.
+ *
+ *   - Step 4: (Optional) you can check before installing with "make test".
+ *
+ *   - Step 5: install the library with "make install". You probably need administrator privileges for doing this.
+ *  
+ */
