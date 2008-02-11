@@ -945,8 +945,15 @@ template <typename T> inline
 template <typename T> inline
     Matrix<T>& Matrix<T>::multElem(const Matrix<T>& A, const Matrix<T>& B)
 {
-  this->type_matrix->equals(A.type_matrix);
-  this->type_matrix->multiplyElements(B.type_matrix);
+  // Must select the matrix to multiply to because can be the same object! so...
+  if(this->type_matrix == A.type_matrix)
+    this->type_matrix->multiplyElements(B.type_matrix);
+  else if(this->type_matrix == B.type_matrix)
+    this->type_matrix->multiplyElements(A.type_matrix);
+  else{ // no problem different matrices...
+    this->type_matrix->equals(A.type_matrix);
+    this->type_matrix->multiplyElements(B.type_matrix);
+  }
   return *(this);
 }
 

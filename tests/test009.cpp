@@ -30,16 +30,16 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  typedef lmx::Matrix<double> dMatrix;
-  typedef lmx::DenseMatrix<double> dDenseMatrix;
-  typedef lmx::Vector<double> dVector;
+  typedef lmx::Matrix<float> dMatrix;
+  typedef lmx::DenseMatrix<float> dDenseMatrix;
+  typedef lmx::Vector<float> dVector;
 
   lmx::setMatrixType(0);
 
   int size=3;
 
   dMatrix A(size,size);
-  dMatrix B;
+  dDenseMatrix B;
   double scalar = 10.5;
 
   B.resize(size,size);
@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
   B.writeElement(.5,0,1);
 
   dMatrix C(A);
-  dMatrix D;
+  dDenseMatrix D;
   D.resize( C.rows(), C.cols() );
 
   ///////////////////////////////////////////////////////////////////////////
   // OVERLOADED OPERATORS:
   ///////////////////////////////////////////////////////////////////////////
 
-  // Not efficient overloaded operators between Matrix<T>
+  // Not efficient overloaded operators between Matrix<T> and DenseMatrix<T>
   cout << "A = " << A << endl;
   cout << "B = " << B << endl;
   cout << "A+B = " <<  A+B << endl;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   cout << "B-A = " <<  B-A << endl;
   cout << "B*A = " <<  B*A << endl;
 
-//   Efficient overloaded operators between Matrix<T>
+//   Efficient overloaded operators between Matrix<T> and DenseMatrix<T>
 //   with the Matrix<T> C as lvalue
   C=-B;
   cout << "C=-B = " << C << endl;
@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
   C-=B;
   cout << "C-=B = " << C << endl;
   
-//   Efficient overloaded operators between Matrix<T>
-//   with the Matrix<T> D as lvalue
+//   Efficient overloaded operators between DenseMatrix<T> and Matrix<T>
+//   with the DenseMatrix<T> D as lvalue
   D=C;
   cout << "D = " << D << endl;
   A.fillIdentity();
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   cout << "D*=scalar = " << (D*=scalar) << endl;
 
   // Nested operators:
-  lmx::Vector<double> v(size);
+  lmx::Vector<float> v(size);
   v.fillIdentity();
   double data=v*(A*B*D*C*v);
   cout << "data=v*(A*B+D*C*v) = " << data << endl;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   C.multElem(B,D);
   cout << "C.multElem(B,D) = " << C << endl;
 
- //   Call from another Matrix Object:
+ //   Call from a DenseMatrix Object:
   cout << "A = " << A << endl;
   cout << "B = " << B << endl;
   D.add(A,B);

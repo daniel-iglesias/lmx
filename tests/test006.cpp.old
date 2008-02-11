@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -31,7 +32,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   typedef lmx::Matrix<double> dMatrix;
-  typedef lmx::DenseMatrix<double> dDenseMatrix;
   typedef lmx::Vector<double> dVector;
 
   lmx::setMatrixType(0);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   A.fillIdentity(2);
   B.fillIdentity(3);
   B(1,2) = 4.;
-  B.writeElement(.5,0,1);
+  B.writeElement(.5,0,1);;
 
   dMatrix C(A);
   dMatrix D;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   // OVERLOADED OPERATORS:
   ///////////////////////////////////////////////////////////////////////////
 
-  // Not efficient overloaded operators between Matrix<T>
+  // Not efficient overloaded operators between Matrix<T> and DenseMatrix<T>
   cout << "A = " << A << endl;
   cout << "B = " << B << endl;
   cout << "A+B = " <<  A+B << endl;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   cout << "B-A = " <<  B-A << endl;
   cout << "B*A = " <<  B*A << endl;
 
-//   Efficient overloaded operators between Matrix<T>
+//   Efficient overloaded operators between Matrix<T> and DenseMatrix<T>
 //   with the Matrix<T> C as lvalue
   C=-B;
   cout << "C=-B = " << C << endl;
@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
   C-=B;
   cout << "C-=B = " << C << endl;
   
-//   Efficient overloaded operators between Matrix<T>
-//   with the Matrix<T> D as lvalue
+//   Efficient overloaded operators between DenseMatrix<T> and Matrix<T>
+//   with the DenseMatrix<T> D as lvalue
   D=C;
   cout << "D = " << D << endl;
   A.fillIdentity();
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   C.multElem(B,D);
   cout << "C.multElem(B,D) = " << C << endl;
 
- //   Call from another Matrix Object:
+ //   Call from a DenseMatrix Object:
   cout << "A = " << A << endl;
   cout << "B = " << B << endl;
   D.add(A,B);
@@ -135,9 +135,8 @@ int main(int argc, char *argv[])
   cout << "D.mult(A,B) = " << D << endl;
   D.mult(B,A);
   cout << "D.mult(B,A) = " << D << endl;
-// This cannot be done!
-//  D.mult(B,D);
-//  cout << "D.mult(B,D) = " << D << endl;
+  D.mult(B,D);
+  cout << "D.mult(B,D) = " << D << endl;
   D.mult(A,C);
   cout << "D.mult(A,C) = " << D << endl;
   D.multElem(A,B);

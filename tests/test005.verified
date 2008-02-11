@@ -1,6 +1,42 @@
-Vector (3) = 
-2 
+a = Vector (3) = 
 2 
 0 
+0 
 
-norma:2.82843
+b = Vector (3) = 
+0 
+3.5 
+0 
+
+a+b = Vector (3) = 
+2 
+3.5 
+0 
+
+a+b = Vector (3) = 
+2 
+3.5 
+0 
+
+a-b = Vector (3) = 
+2 
+-3.5 
+0 
+
+a-b = Vector (3) = 
+2 
+-3.5 
+0 
+
+a(i)*b(i) = Vector (3) = 
+0 
+0 
+0 
+
+a*b = 0
+Vector (3) = 
+2 
+0 
+0 
+
+norm(a) = 2

@@ -10,13 +10,32 @@ int main(int argc, char* argv){
   setVectorType(0);
   setLinSolverType(0);
 
+  Vector<double> a(3);
   Vector<double> b(3);
-  double norma2;
+  Vector<double> c(3);
+  double norm;
   
-  b.writeElement(2.,0);
-  b.writeElement(2.,1);
+  a.writeElement(1.,0);
+  a.writeElement(2.,0);
+  b.writeElement(3.5,1);
   
-  norma2 = b.norm2();
-  cout << b << endl << "norma:" << norma2 << endl;
+  std::cout << "a = " << a << std::endl;
+  std::cout << "b = " << b << std::endl;
+
+  c.add(a,b);
+  std::cout << "a+b = " << c << std::endl;
+  std::cout << "a+b = " << a+b << std::endl;
+
+  c.subs(a,b);
+  std::cout << "a-b = " << c << std::endl;
+  std::cout << "a-b = " << a-b << std::endl;
+
+  c.multElem(a,b);
+  std::cout << "a(i)*b(i) = " << c << std::endl;
+  std::cout << "a*b = " << a*b << std::endl;
+
+
+  norm = a.norm1();
+  cout << a << endl << "norm(a) = " << norm << endl;
   
 } 

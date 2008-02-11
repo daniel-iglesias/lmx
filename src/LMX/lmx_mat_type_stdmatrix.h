@@ -140,7 +140,21 @@ public:
       * \param matrix_in_1 pointer to an object that belongs to a class derived from Data.
       * \param matrix_in_2 pointer to an object that belongs to a class derived from Data. */
   void multiply(const Data<T>* matrix_in_1, const Data<T>* matrix_in_2)
-  { this->resize( matrix_in_1->getRows(), matrix_in_2->getCols() );
+  { 
+  // Emmit an error if called over self data...
+    if(this == matrix_in_1 || this == matrix_in_2){
+      std::stringstream message;
+      message << "Trying to multiply and save results on same data at the same time."
+	    << endl << "  This cannot be done." << endl;
+      LMX_THROW(failure_error, message.str() );
+    }
+    // This can have a good optimization...
+    this->resize( matrix_in_1->getRows(), matrix_in_2->getCols() );
+    for (size_type i=0; i<rows; ++i){
+      for (size_type j=0; j<cols; ++j){
+	    contents[i][j] = T(0);
+	  }
+	}
     for (size_type i=0; i<rows; ++i){
       for (size_type j=0; j<matrix_in_2->getRows(); ++j){
         for (size_type k=0; k<cols; ++k){
