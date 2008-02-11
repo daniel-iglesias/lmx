@@ -235,7 +235,8 @@ namespace lmx{
     Nrow = Ncol = Nnzero = Neltvl = 0;
     if (sscanf(getline(line), "%3c%d%d%d%d", Type, &Nrow, &Ncol, &Nnzero, &Neltvl) < 1)
       IOHBTerminate("Invalid Type info, line 3 of Harwell-Boeing file.\n");
-    std::for_each(Type, Type+3, toupper);
+    std::for_each(Type, Type+3, (int(*)(int))toupper);
+//    std::for_each(Type, Type+3, toupper);
       /*  Fourth line:  */
     if ( sscanf(getline(line), "%16c%16c%20c%20c",Ptrfmt,Indfmt,Valfmt,Rhsfmt) < 3)
       IOHBTerminate("Invalid format info, line 4 of Harwell-Boeing file.\n"); 

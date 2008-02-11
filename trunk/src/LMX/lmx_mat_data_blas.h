@@ -108,10 +108,25 @@ template <typename T>
                        const Data_mat<T>* B,
                        Data_mat<T>* C)
 {
-  for (size_type i=0; i < C->getRows(); ++i){
-    for (size_type j=0; j < C->getCols(); ++j){
+  // Emmit an error if C is A or B...
+    if(C == A || C == B){
+      std::stringstream message;
+      message << "Trying to multiply and save results on same data at the same time."
+	    << endl << "  This cannot be done." << endl;
+      LMX_THROW(failure_error, message.str() );
+    }
+  size_type i, j, k;
+  C->resize( A->getRows(), B->getCols() );
+  for (i=0; i< C->getRows(); ++i){
+    for (j=0; j< C->getCols(); ++j){
+      C->writeElement( T(0), i, j );
+	}
+  }
+  // This can have a good optimization...
+  for (i=0; i < C->getRows(); ++i){
+    for (j=0; j < C->getCols(); ++j){
       C->writeElement( 0, i, j );
-      for (size_type k=0; k < A->getCols(); ++k){
+      for (k=0; k < A->getCols(); ++k){
         C->writeElement( C->readElement(i,j) + A->readElement(i,k) * B->readElement(k,j) , i, j );
       }
     }
