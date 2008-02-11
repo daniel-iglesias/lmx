@@ -2239,7 +2239,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=LMX
- VERSION=1.0.beta3
+ VERSION=1.0.beta4
 
 
 cat >>confdefs.h <<_ACEOF
