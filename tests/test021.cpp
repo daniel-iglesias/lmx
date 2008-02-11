@@ -65,8 +65,8 @@ class MyDiffSystem{
 
     void myTangent( lmx::Matrix<double>& tangent,
                     const lmx::Vector<double>& q,
-                    const lmx::Vector<double>& qdot,
-                    double partial_qdot
+                    double partial_qdot,
+                    double time
                   )
     {
       tangent.fillIdentity( partial_qdot );

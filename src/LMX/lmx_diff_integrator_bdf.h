@@ -172,7 +172,7 @@ namespace lmx {
   template <class T>
       void IntegratorBDF<T>::actualize( lmx::Vector<T> delta )
   {
-    int i, j;
+    int i;
     if (q->getTimeSize() < order+1){ //orden de integrador > steps
       for ( i = 0; i < q->getDiffOrder(); ++i ){
         q->setConf( i+1) +=  delta

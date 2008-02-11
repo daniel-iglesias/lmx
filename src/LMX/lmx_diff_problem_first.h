@@ -74,8 +74,8 @@ class DiffProblemFirst
                    );
     void setJacobian( void (Sys::* jacobian_in)( lmx::Matrix<double>& tangent,
                                                  const lmx::Vector<double>& q,
-                                                 const lmx::Vector<double>& qdot,
-                                                 double partial_qdot
+                                                 double partial_qdot,
+                                                 double time
                                                )
                     );
     void setEvaluation( void (Sys::* eval_in)( const lmx::Vector<double>& q,
@@ -83,6 +83,13 @@ class DiffProblemFirst
                                                double time
                                              )
                       );
+    /**
+     * Backward resolution of mother function.
+     * @param L2 norm maximum residual.
+     */
+    void setConvergence( double eps_in )
+    { DiffProblem<Sys, T>::setConvergence( eps_in ); }
+
     void setConvergence
         ( bool (Sys::* convergence)( const lmx::Vector<double>& q,
                                      const lmx::Vector<double>& qdot,
@@ -116,8 +123,8 @@ class DiffProblemFirst
                      );
     void (Sys::* jac)( lmx::Matrix<double>& tangent,
                        const lmx::Vector<double>& q,
-                       const lmx::Vector<double>& qdot,
-                       double partial_qdot
+                       double partial_qdot,
+                       double time
                      );
     void (Sys::* eval)( const lmx::Vector<double>& q,
                         lmx::Vector<double>& qdot,
@@ -152,14 +159,15 @@ template <typename Sys, typename T>
 
 /**
  * Sets the external function for tangent to q. Must be a Sys member function.
+ * :::change documentation:::
  * @param jacobian_in Tangent function.
  */
 template <typename Sys, typename T>
     void DiffProblemFirst<Sys,T>::
         setJacobian( void (Sys::* jacobian_in)(  lmx::Matrix<double>& tangent,
                                                  const lmx::Vector<double>& q,
-                                                 const lmx::Vector<double>& qdot,
-                                                 double partial_qdot
+                                                 double partial_qdot,
+                                                 double time
                                               )
                    )
 {
@@ -240,8 +248,8 @@ template <typename Sys, typename T>
 {
   (this->theSystem->*jac)( jacobian,
               this->theConfiguration->getConf(0),
-              this->theConfiguration->getConf(1),
-              static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( )
+              static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( ),
+              this->theConfiguration->getTime( )
             );
 }
 
