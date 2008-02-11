@@ -106,9 +106,9 @@ class DiffProblemSecond
                                      lmx::Matrix<T>& jacobian,
                                      const lmx::Vector<T>& q,
                                      const lmx::Vector<T>& qdot,
-                                     const lmx::Vector<T>& qddot,
                                      double partial_qdot,
-                                     double partial_qddot
+                                     double partial_qddot,
+                                     double time
                                    )
         );
 
@@ -116,11 +116,12 @@ class DiffProblemSecond
      ( void (Sys::* jacobian_q_qdot)( lmx::Matrix<T>& jac_q_qdot,
                                       const lmx::Vector<T>& q,
                                       const lmx::Vector<T>& qdot,
-                                      double partial_qdot
+                                      double partial_qdot,
+                                      double time
                                     ),
        void (Sys::* jacobian_qddot)( lmx::Matrix<T>& jac_qddot,
-                                     const lmx::Vector<T>& qddot,
-                                     double partial_qddot
+                                     double partial_qddot,
+                                     double time
                                    )
      );
 
@@ -146,7 +147,7 @@ class DiffProblemSecond
      * @param type Key of integrator family to use.
      * @param opt2 Optional value for some integrators.
      */
-    void setIntegrator( const char* type, int opt2=0 )
+    void setIntegrator( char* type, int opt2=0 )
     { DiffProblem<Sys, T>::setIntegrator( type, opt2 ); }
 
     void setIntegrator( char* type, double alpha_in );
@@ -157,6 +158,13 @@ class DiffProblemSecond
                         double gamma,
                         double alpha = 0
                       );
+
+    /**
+     * Backward resolution of mother function.
+     * @param L2 norm maximum residual.
+     */
+    void setConvergence( double eps_in )
+    { DiffProblem<Sys, T>::setConvergence( eps_in ); }
 
     void setConvergence
         ( bool (Sys::* convergence)( const lmx::Vector<T>& q,
@@ -215,18 +223,19 @@ class DiffProblemSecond
     void (Sys::* jac)( lmx::Matrix<T>& jacobian,
                        const lmx::Vector<T>& q,
                        const lmx::Vector<T>& qdot,
-                       const lmx::Vector<T>& qddot,
                        double partial_qdot,
-                       double partial_qddot
+                       double partial_qddot,
+					   double time
                      );
    void (Sys::* jac_q_qdot)( lmx::Matrix<T>& jac_q_qdot,
                              const lmx::Vector<T>& q,
                              const lmx::Vector<T>& qdot,
-                             double partial_qdot
+                             double partial_qdot,
+							 double time
                            );
    void (Sys::* jac_qddot)( lmx::Matrix<T>& jac_qddot,
-                            const lmx::Vector<T>& qddot,
-                            double partial_qddot
+                            double partial_qddot,
+							double time
                           );
    void (Sys::* eval)( const lmx::Vector<T>& q,
                        const lmx::Vector<T>& qdot,
@@ -293,6 +302,7 @@ template <typename Sys, typename T>
 
 /**
  * Sets the external function for tangent to q. Must be a Sys member function.
+ * ::: change documentation :::
  * @param jacobian_in Tangent function.
  */
 template <typename Sys, typename T>
@@ -301,9 +311,9 @@ template <typename Sys, typename T>
                                      lmx::Matrix<T>& jacobian,
                                      const lmx::Vector<T>& q,
                                      const lmx::Vector<T>& qdot,
-                                     const lmx::Vector<T>& qddot,
                                      double partial_qdot,
-                                     double partial_qddot
+                                     double partial_qddot,
+                                     double time
                                    )
         )
 {
@@ -313,6 +323,7 @@ template <typename Sys, typename T>
 
 /**
  * Sets the external function for residue evaluation. Must be a Sys member function.
+ * ::: change documentation :::
  * @param jacobian_q_qdot Tangent member function depending on \f$ q \f$ and \f$ \frac{dq}{dt} \f$ .
  * @param jacobian_qddot Tangent member function depending on \f$ \frac{d^2q}{dt^2} \f$ .
  */
@@ -321,11 +332,12 @@ template <typename Sys, typename T>
      ( void (Sys::* jacobian_q_qdot)( lmx::Matrix<T>& jac_q_qdot,
                                       const lmx::Vector<T>& q,
                                       const lmx::Vector<T>& qdot,
-                                      double partial_qdot
+                                      double partial_qdot,
+									  double time
                                     ),
        void (Sys::* jacobian_qddot)( lmx::Matrix<T>& jac_qddot,
-                                     const lmx::Vector<T>& qddot,
-                                     double partial_qddot
+                                     double partial_qddot,
+									 double time
                                    )
      )
 {
@@ -499,9 +511,9 @@ template <typename Sys, typename T>
   (this->theSystem->*jac)( jacobian,
               this->theConfiguration->getConf(0),
               this->theConfiguration->getConf(1),
-              this->theConfiguration->getConf(2),
               static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( ),
-              static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( )
+              static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( ),
+              this->theConfiguration->getTime( )
             );
 }
 
@@ -516,11 +528,12 @@ template <typename Sys, typename T>
   (this->theSystem->*jac_q_qdot)( *(jacobianParts[0]),
                                   this->theConfiguration->getConf(0),
                                   this->theConfiguration->getConf(1),
-                                  static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( )
+                                  static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( ),
+                                  this->theConfiguration->getTime( )
                                 );
   (this->theSystem->*jac_qddot)( *(jacobianParts[1]),
-                                 this->theConfiguration->getConf(2),
-                                 static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( )
+                                 static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( ),
+                                 this->theConfiguration->getTime( )
                                );
   jacobian = *jacobianParts[0] + *jacobianParts[1];
 }
@@ -536,11 +549,12 @@ template <typename Sys, typename T>
   (this->theSystem->*jac_q_qdot)( *(jacobianParts[0]),
                                   this->theConfiguration->getConf(0),
                                   this->theConfiguration->getConf(1),
-                                  static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( )
+                                  static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQdot( ),
+                                  this->theConfiguration->getTime( )
                                 );
   (this->theSystem->*jac_qddot)( *(jacobianParts[1]),
-                                 this->theConfiguration->getConf(2),
-                                 static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( )
+                                 static_cast< IntegratorBaseImplicit<T>* >(this->theIntegrator)->getPartialQddot( ),
+								 this->theConfiguration->getTime( )
                                );
   jacobian = (T)(1-alpha)* (*jacobianParts[0]) + *jacobianParts[1];
 }

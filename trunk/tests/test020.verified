@@ -6,9 +6,9 @@ An initial condition has been set:
 Derivative order = 1--------------------------------------------------------
 --------------------------------------------------------
 Configuration has been resized to the following vectors:
-Derivative order = 0, vector size = 2
-Derivative order = 1, vector size = 2
-Derivative order = 2, vector size = 2
+Derivative order = 0, time line size = 2
+Derivative order = 1, time line size = 2
+Derivative order = 2, time line size = 2
 --------------------------------------------------------
 --------------------------------------------------------
              Solving step number 1 time = 0.1

@@ -60,8 +60,11 @@ namespace lmx {
        : increment(0)
          , conv1(0)
          , conv2(0)
+         , conv3(0)
+		 , epsilon(1E-5)
          , externalConvergence1(0)
          , externalConvergence2(0)
+         , externalConvergence3(0)
          , deltaInResidue(0)
      /**
       * Empty constructor. 
@@ -119,6 +122,14 @@ namespace lmx {
         */
       { jac = jacobian_in; }
 
+      void setConvergence( double eps_in )
+       /**
+       * Defines the epsilon value for the L2 norm.
+       * :::needs documentation:::
+       * @param eps_in Value of the maximum L2 limit.
+        */
+      { epsilon = eps_in; }
+
       void setConvergence( bool (Sys::*convergence_in)(lmx::Vector<T>&) )
        /**
        * Defines the optional member function for convergence evaluation with residue parameter.
@@ -133,6 +144,15 @@ namespace lmx {
        * @param convergence_in Convergence evaluation member function.
         */
       { conv2 = convergence_in; externalConvergence2 = 1; }
+
+      void setConvergence( bool (Sys::*convergence_in)(lmx::Vector<T>&, lmx::Vector<T>&, lmx::Vector<T>&) )
+       /**
+       * Defines the optional member function for convergence evaluation with residue, configuration and 
+	   * increment vector parameters.
+       * :::needs documentation:::
+       * @param convergence_in Convergence evaluation member function.
+        */
+      { conv3 = convergence_in; externalConvergence3 = 1; }
 
       bool convergence ( );
 
@@ -157,8 +177,11 @@ namespace lmx {
       void (Sys::*jac)(lmx::Matrix<T>&, lmx::Vector<T>&);
       bool (Sys::*conv1)(lmx::Vector<T>&);
       bool (Sys::*conv2)(lmx::Vector<T>&, lmx::Vector<T>&);
+      bool (Sys::*conv3)(lmx::Vector<T>&, lmx::Vector<T>&, lmx::Vector<T>&);
+	  double epsilon;
       bool externalConvergence1;
       bool externalConvergence2;
+      bool externalConvergence3;
       bool deltaInResidue;
 
 
@@ -178,7 +201,7 @@ namespace lmx {
          * Is used if no external convergence function is set.
          */
   { 
-    if (this->res_vector.norm2() < 1e-5) {return 1;}
+    if (this->res_vector.norm2() < epsilon) {return 1;}
     else { return 0; }
   }
 
@@ -220,6 +243,12 @@ namespace lmx {
           }
           else if ( externalConvergence2 ){
             if ( (theSystem->*conv2)(res_vector, q) ){
+              std::cout << endl << endl;
+              break;
+            }
+          }
+          else if ( externalConvergence3 ){
+            if ( (theSystem->*conv3)(res_vector, q, increment->getSolution()) ){
               std::cout << endl << endl;
               break;
             }

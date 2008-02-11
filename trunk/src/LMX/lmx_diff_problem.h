@@ -78,13 +78,16 @@ template <typename Sys, typename T=double> class DiffProblem{
     { theSystem = &system_in; }
 
     void setIntegrator( int type, int opt1=0, int opt2=0 );
-    void setIntegrator( const char* type, int opt2=0 );
+    void setIntegrator( char* type, int opt2=0 );
     void setInitialConfiguration( lmx::Vector<T>& q_o );
     void setInitialConfiguration( lmx::Vector<T>& q_o, lmx::Vector<T>& qdot_o );
     void setOutputFile( char* filename, int diffOrder );
     void setTimeParameters( double to_in, double tf_in, double step_size_in );
     void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
 	void setStepTriggered( void (Sys::* stepTriggered_in)() );
+	// needs documentation:
+	void setConvergence( double eps_in )
+	{ epsilon = eps_in; }
 
 	// needs documentation:
 	const lmx::Vector<T>& getConfiguration( int order, int step=0)
@@ -111,6 +114,7 @@ template <typename Sys, typename T=double> class DiffProblem{
     double to; ///< Value of the start time stored from input.
     double tf; ///< Value of the finish time stored from input.
     double stepSize; ///< Value of the time step stored from input.
+	double epsilon; ///< Value for L2 convergence.
     std::map< int, std::ofstream* > fileOutMap; ///< collection of output streams for each diff-order requested.
     void (Sys::* stepTriggered)(); ///< function called at the end of each time step
 };
@@ -154,7 +158,7 @@ template <typename Sys, typename T>
  * @param opt2 Optional value for some integrators.
  */
 template <typename Sys, typename T>
-    void DiffProblem<Sys,T>::setIntegrator( const char* type, int opt2 )
+    void DiffProblem<Sys,T>::setIntegrator( char* type, int opt2 )
 {
   if (!strcmp(type, "AB-1")) theIntegrator = new IntegratorAB<T>( 1 );
   else if (!strcmp(type, "AB-2")) theIntegrator = new IntegratorAB<T>( 2 );

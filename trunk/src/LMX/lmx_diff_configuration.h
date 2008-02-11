@@ -210,7 +210,7 @@ template <class T>
   cout << "--------------------------------------------------------" << endl;
   cout << "Configuration has been resized to the following vectors:" << endl;
   for ( i = 0; i < q.size(); ++i ){
-    cout << "Derivative order = " << i << ", vector size = " << q[i].size() << endl;
+    cout << "Derivative order = " << i << ", time line size = " << q[i].size() << endl;
   }
   cout << "--------------------------------------------------------" << endl;
 }

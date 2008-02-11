@@ -69,9 +69,9 @@ class MyDiffSystem{
     void myTangent( lmx::Matrix<double>& tangent,
                     const lmx::Vector<double>& q,
                     const lmx::Vector<double>& qdot,
-                    const lmx::Vector<double>& qddot,
                     double partial_qdot,
-                    double partial_qddot
+                    double partial_qddot,
+					double time
                   )
     {
       tangent.fillIdentity( partial_qddot );
@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
   theProblem.setEvaluation( &MyDiffSystem::myEvaluation );
   theProblem.setResidue( &MyDiffSystem::myResidue );
   theProblem.setJacobian( &MyDiffSystem::myTangent );
+  theProblem.setConvergence( 1E-5 );
   theProblem.solve();
   
   return EXIT_SUCCESS;
