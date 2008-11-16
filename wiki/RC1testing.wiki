@@ -1,0 +1,28 @@
+#labels Featured,Phase-QA
+# Call for testing the RC1
+
+= Just one step to go! =
+
+After almost three years since the first ideas, finally we have a fully featured, efficient and hopefully robust implementation of the versatile LMX library. But before labeling it as stable, we have decided to launch a _Release Candidate_ of version 1.0 for validation purposes.
+
+We hope there will be minor changes (hopefully any at all) from this version to the final one, expected for November 30th.
+
+Also remember to update the _LMX User's Guide_ and if you find any errors, omissions or just something that is not clear, let us know the sooner the better.
+
+= Important changes since last version =
+
+Many internal changes have been made to increase the efficiency, mostly in `DenseMatrix` class. For the user's point of view, the important (API) changes are the following: 
+
+# Function `multElem(...)` has been relabeled to `multElements(...)` for clarity reasons and consistency with other denominations.
+
+# In `LinearSystem` class is now possible to solve multiple systems defined as AX=B, where the three objects can be of classes `Matrix` or `DenseMatrix`. This has provoke a change in the `solve` function that returns now void, and also the function `getSolution` has been divided into `getSolutionVector` and `getSolutionMatrix`.
+
+= Important Dates =
+
+Next two weeks shall be at least exciting as two milestones will be reached:
+
+# Sunday, *November 23th* will be published the efficiency test suite and another call will be made for launching it in different platforms and hardware.
+
+# Sunday, *November 30th* will be the big day! This is the day planned for the LMX-1.0 stable release. We are commited to have the work done for that day but *we need your feedback!*
+
+Cheers!
