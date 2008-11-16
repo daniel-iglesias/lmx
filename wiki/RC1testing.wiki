@@ -1,6 +1,4 @@
 #labels Featured,Phase-QA
-# Call for testing the RC1
-
 = Just one step to go! =
 
 After almost three years since the first ideas, finally we have a fully featured, efficient and hopefully robust implementation of the versatile LMX library. But before labeling it as stable, we have decided to launch a _Release Candidate_ of version 1.0 for validation purposes.
