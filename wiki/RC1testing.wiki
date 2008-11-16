@@ -13,7 +13,7 @@ Many internal changes have been made to increase the efficiency, mostly in `Dens
 
 # Function `multElem(...)` has been relabeled to `multElements(...)` for clarity reasons and consistency with other denominations.
 
-# In `LinearSystem` class is now possible to solve multiple systems defined as AX=B, where the three objects can be of classes `Matrix` or `DenseMatrix`. This has provoke a change in the `solve` function that returns now void, and also the function `getSolution` has been divided into `getSolutionVector` and `getSolutionMatrix`.
+# In `LinearSystem` class is now possible to solve multiple systems defined as AX=B, where the three objects can be of classes `Matrix` or `DenseMatrix`. This has produced a change in the `solve` function that returns now void, and also the function `getSolution` has been divided into `getSolutionVector` and `getSolutionMatrix`.
 
 = Important Dates =
 
