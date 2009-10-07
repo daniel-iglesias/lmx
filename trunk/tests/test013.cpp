@@ -98,7 +98,7 @@ class MyDiffSystem{
     lmx::Matrix<double> K;
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
 
   lmx::setMatrixType( 0 );
