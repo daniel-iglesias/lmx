@@ -4,7 +4,7 @@
 
 using namespace lmx;
 
-int main(int argc, char* argv){
+int main(int argc, char** argv){
 
   setMatrixType(0);
   setVectorType(0);

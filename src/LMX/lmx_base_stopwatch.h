@@ -22,6 +22,7 @@
 
 #include <ctime>
 #include <sys/time.h>
+#include <fstream>
 
 //////////////////////////////////////////// Doxygen file documentation entry:
     /*!

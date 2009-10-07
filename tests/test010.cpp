@@ -39,7 +39,7 @@ public:
     lmx::Vector<double> temp;
 };
 
-int main(int argc, char* argv){
+int main(int argc, char** argv){
 
   setMatrixType(0);
   setVectorType(0);

@@ -22,6 +22,8 @@
 #define LMXMATRIX_H
 
 #include<cmath>
+// for compatibility for gcc-4.3 and newer:
+#include <cstring>
 
 #include"lmx_except.h"
 #include"lmx_mat_type_stdmatrix.h"
