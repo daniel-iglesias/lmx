@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LMX : Algebra methods and more">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>LMX</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/diglesias78/lmx">View on GitHub</a>
+
+          <h1 id="project_title">LMX</h1>
+          <h2 id="project_tagline">Algebra methods and more</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/diglesias78/lmx/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/diglesias78/lmx/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p>LMX is a numerical library for C++ developers that provides built-in methods, including matrix and vector algebra, dense and sparse storage, linear direct and iterative solvers, nonlinear solvers, ODE systems integrators (Newmark, HHT, BDF, etc.). It also links to other well known libraries for high performance computations.</p>
+
+<p><img src="http://i60.tinypic.com/2vug6yu.png" alt="LMX"></p>
+
+<h2>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p>The main difference with other libraries is that it provides a framework that enables switching between different types of matrices (dense and sparse) before and after the compilation of your code. This feature implies a little overhead in numerical operations but is not very important in the usual bottlenecks of the computational codes. An efficiency suite is supplied for you to evaluate its possible impact in your project.</p>
+
+<p>As templates are thoroughly used, the library consists on a series of header files and can be used directly to compile your code. The size of the compiled objects and executables is kept small although the compilation time is higher compared with a precompiled library.</p>
+
+<p>At this time, we provide linked methods to gmm++, SuperLU and Lapack, and the incorporation of BLAS for dense high performance methods is planed for the (near) future. The installation of these libraries is optional, as LMX is self-contained, but their use is recommended when speed is a concern.</p>
+
+<p>We hope it is as useful for you as it is for us.</p>
+
+<p>Cheers!</p>
+
+<h2>
+<a id="publications" class="anchor" href="#publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publications</h2>
+
+<p>MULTIBODY DYNAMICS 2007, ECCOMAS Thematic Conference C.L. Bottasso, P. Masarati, L. Trainelli (eds.) Milano, Italy, 25–28 June 2007</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LMX maintained by <a href="https://github.com/diglesias78">diglesias78</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
