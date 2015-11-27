@@ -1,0 +1,9 @@
+# Today is the day! #
+
+**LMX-1.0 is finally out.** That means we consider this version stable enough for production work.
+
+Some features have been delayed and will have to wait a little bit. These cover from efficiency improvements to new solvers and integrators.
+
+Stay tuned for future announcements.
+
+_Happy coding!_

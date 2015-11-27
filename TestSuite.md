@@ -1,0 +1,21 @@
+# Introduction #
+
+One day after annunced (which is not bad at all...) we present a rough preliminary version of the lmx-test-suite. The goal of this tool is to have an automatized analysis of the performance of the library in different systems and architectures.
+
+
+# Details #
+
+The aim of the **pre** versions is just to have a working suite. No performance reports are expected at this time but it would be nice if you let us now if the final plots (eps) are generated. Feedback is also appreciated for improving the workflow and adding other test of interest to you.
+
+## Important facts before using the test-suite: ##
+  * The lmx and gmm headers must be available in usual path or must be passed as a flag to the _configure_ script.
+  * Gnuplot must be installed or the test codes will fail in the _system_ call. This is needed to create the plots of the output, which are nicer to publish and analyze than the raw numerical data.
+  * Please, force the _configure_ script to use your favorite optimizing flags by defining the `CXXFLAGS="..."`.
+
+## Other recomendations: ##
+  * In a modern GNU/Linux distribution `CXXFLAGS="-O3"` should be enough.
+  * In OS X, at least `CXXFLAGS="-fast"` should be used (`CXXFLAGS="-fast -m64"` is recommended).
+  * Also in OS X, the installation of the latest XCode version (3.1 at this time) is highly recommended. With its installation, the latest gcc compiler will be available. Also set the flag `CXX="g++-4.2"` (or latest available) as it provides higher optimization in template calls.
+  * In any case, please think that a useful report must include the system, architecture, hardware specs, compiler and flags used. We are thinking about a template for the reports, if you have ideas about this, also comment below or throw us an email.
+
+Thanks!
