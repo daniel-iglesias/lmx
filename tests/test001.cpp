@@ -31,5 +31,8 @@ int main(int argc, char** argv){
   fout << A << endl << b << endl << c << endl;
   fout.close();
 
-  return compareFiles("test001.out", "test001.verified");
+  if(compareFiles("test001.out", "test001.verified")){
+	  cout << "SUCCESS" << endl;
+	  return 0;
+  }
 } 
