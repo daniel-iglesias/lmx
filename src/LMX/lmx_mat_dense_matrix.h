@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -29,7 +29,7 @@
       
       \brief This file contains both the declaration and implementation for DenseMatrix class member and friend functions.
       
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias 
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -49,11 +49,12 @@ template <typename T> class Matrix;
     @param reference An Elem_ref object for r/w data access.
     @param *type_matrix The pointer to the matrix data container.
 
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <typename T> class DenseMatrix : public Matrix<T>{
 private:
   int type;
+  Type_stdmatrix<T>* std_matrix;
 
 public:
 
@@ -69,9 +70,9 @@ public:
 
   inline DenseMatrix& operator = ( const Matrix<T>& );
 
-  inline DenseMatrix& multElem ( const Matrix<T>& );
+  inline DenseMatrix& multElements ( const Matrix<T>& );
 
-  inline DenseMatrix& multElem ( const Matrix<T>&, const Matrix<T>&);
+  inline DenseMatrix& multElements ( const Matrix<T>&, const Matrix<T>&);
 
       /** Overloaded operator for adding elements between a DenseMatrix and a Matrix object.
        *  */
@@ -108,6 +109,31 @@ public:
     return res;
   }
 
+  /** Function that returns the value in specified position of Matrix object.
+   *  */
+    inline
+        const T& readElement(size_type m, size_type n) const
+    { return std_matrix->contents[m][n]; }
+
+  /** Function writes the value in specified position of Matrix object.
+   *  */
+    inline
+        void writeElement(T theValue, size_type m, size_type n) const
+    { std_matrix->contents[m][n] = theValue; }
+
+  /** Function adds the value in specified position of Matrix object.
+   *  */
+    inline
+        void addElement(const T theValue, size_type m, size_type n) const
+    { std_matrix->contents[m][n] += theValue; }
+
+  /** Writes in two STL vectors the HB column and row indexes of the Non-zeros.
+   *  */
+        void writeSparsePattern( std::vector<size_type>&,
+                                 std::vector<size_type>&
+                               ) const;
+
+
 };
 
 }; // namespace lmx
@@ -122,6 +148,7 @@ template <typename T>
 DenseMatrix<T>::DenseMatrix()
   : Matrix<T>(0)
 {
+  std_matrix = static_cast<Type_stdmatrix<T>*> (this->type_matrix);
 }
 
   /** Standard constructor.
@@ -131,6 +158,7 @@ template <typename T>
 DenseMatrix<T>::DenseMatrix(size_type rows, size_type columns)
  : Matrix<T>(rows, columns, 0)
 {
+  std_matrix = static_cast<Type_stdmatrix<T>*> (this->type_matrix);
 }
 
   /** Copy constructor.
@@ -143,6 +171,7 @@ DenseMatrix<T>::DenseMatrix(const DenseMatrix& A) :
   this->ncolumns = A.cols();
   this->type_matrix->resize(this->mrows, this->ncolumns);
   this->type_matrix->equals(A.type_matrix);
+  std_matrix = static_cast<Type_stdmatrix<T>*> (this->type_matrix);
   
 }
 
@@ -165,10 +194,11 @@ template <typename T>
   this->mrows = A.rows();
   this->ncolumns = A.cols();
   for (size_type i=0; i<this->mrows; ++i){
-    for (size_type j=0; j<this->mrows; ++j){
+    for (size_type j=0; j<this->ncolumns; ++j){
       this->writeElement(A.readElement(i,j), i, j);
     }
   }
+  return *this;
     
 }
 
@@ -203,9 +233,9 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    DenseMatrix<T>& DenseMatrix<T>::multElem(const Matrix<T>& B)
+    DenseMatrix<T>& DenseMatrix<T>::multElements(const Matrix<T>& B)
 {
-  mat_mat_multElem( B.type_matrix, this->type_matrix );
+  mat_mat_multElements( B.type_matrix, this->type_matrix );
   return *(this);
 }
 
@@ -216,12 +246,28 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    DenseMatrix<T>& DenseMatrix<T>::multElem(const Matrix<T>& A, const Matrix<T>& B)
+    DenseMatrix<T>& DenseMatrix<T>::multElements(const Matrix<T>& A, const Matrix<T>& B)
 {
-  mat_mat_multElem( A.type_matrix, B.type_matrix, this->type_matrix );
+  mat_mat_multElements( A.type_matrix, B.type_matrix, this->type_matrix );
   return *(this);
 }
 
+template <typename T>
+        void DenseMatrix<T>::writeSparsePattern
+        (std::vector<size_type>& nRows,
+         std::vector<size_type>& nCols) const
+{ int i,j, elem_counter(1);
+    for(j=0; j < this->ncolumns; ++j){
+        nCols.push_back( elem_counter );
+        for(i=0; i < this->mrows; ++i){
+            if (this->readElement(i,j) != T(0)){
+                nRows.push_back( i+1 );
+                ++elem_counter;
+            }
+        }
+    }
+    nCols.push_back( elem_counter );
+}
 
 
 }; // namespace lmx

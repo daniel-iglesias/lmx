@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
       
       Basic linear algebra numerical methodso including specialization for some Matrix and Vector data types.
       
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias 
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -140,7 +140,7 @@ template <typename T>
  * @param C Result Data_mat<T>.
  */
 template <typename T>
-    void mat_mat_multElem( const Data_mat<T>* A,
+    void mat_mat_multElements( const Data_mat<T>* A,
                            Data_mat<T>* C)
 {
   for (size_type i=0; i < C->getRows(); ++i){
@@ -158,7 +158,7 @@ template <typename T>
  * @param C Result Data_mat<T>.
  */
 template <typename T>
-    void mat_mat_multElem( const Data_mat<T>* A,
+    void mat_mat_multElements( const Data_mat<T>* A,
                            const Data_mat<T>* B,
                            Data_mat<T>* C)
 {

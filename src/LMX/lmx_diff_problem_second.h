@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -28,11 +28,12 @@
 
       \brief DiffProblemSecond class implementation
 
-      Describes an initial value for a dynamic system with an ODE or DAE description.
+      Describes an initial value for a dynamic system with an ODE or DAE 
+      description.
 
       This is the base file of lmx_diff systems' manipulation and solution.
 
-      \author Daniel Iglesias Ib��ez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -47,9 +48,11 @@ namespace lmx {
     \brief Template class DiffProblemSecond.
     Implementation for Fist Order ODE system solvers.
 
-    This class implements methods for defining and solving initial value problems described by a TotalDiff class' derivided object, and initial conditions in the form \f$ q(t_o) = q_o \f$.
+    This class implements methods for defining and solving initial value 
+    problems described by a TotalDiff class' derivided object, and initial 
+    conditions in the form \f$ q(t_o) = q_o \f$.
 
-    @author Daniel Iglesias Ib��ez.
+    @author Daniel Iglesias.
     */
 template <typename Sys, typename T=double> 
 class DiffProblemSecond
@@ -64,6 +67,7 @@ class DiffProblemSecond
        , b_jacobianByParts(0)
        , b_alpha(0)
        , b_convergence(0)
+       , b_sparse(0)
     {}
 
     /** Destructor. */
@@ -77,6 +81,7 @@ class DiffProblemSecond
         delete jacobianParts[i];
         jacobianParts[i]=0;
       }
+    this->p_delta_q = 0;
     }
 
     void setResidue
@@ -147,13 +152,13 @@ class DiffProblemSecond
      * @param type Key of integrator family to use.
      * @param opt2 Optional value for some integrators.
      */
-    void setIntegrator( char* type, int opt2=0 )
+    void setIntegrator( const char* type, int opt2=0 )
     { DiffProblem<Sys, T>::setIntegrator( type, opt2 ); }
 
-    void setIntegrator( char* type, double alpha_in );
+    void setIntegrator( const char* type, double alpha_in );
 
 
-    void setIntegrator( char* type,
+    void setIntegrator( const char* type,
                         double beta,
                         double gamma,
                         double alpha = 0
@@ -175,25 +180,35 @@ class DiffProblemSecond
 
         );
 
-    void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
+    // Needs documentation
+    void setSparsePatternJacobian( lmx::DenseMatrix<T>& mat_sparse )
+    { mat_sparse.writeSparsePattern( v_rows, v_cols );
+      b_sparse = 1;
+    }
 
-    void iterationResidueByParts( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
+    void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q );
 
-    void iterationResidueForAlpha( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
+    void iterationResidueByParts( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q );
 
-    void iterationJacobian( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual );
+    void iterationResidueForAlpha( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q );
 
-    void iterationJacobianByParts( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual );
+    void iterationJacobian( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q );
 
-    void iterationJacobianForAlpha( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual );
+    void iterationJacobianByParts( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q );
 
-    bool iterationConvergence( lmx::Vector<T>& q_actual );
+    void iterationJacobianForAlpha( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q );
 
+    bool iterationConvergence( lmx::Vector<T>& delta_q );
+
+    void initialize( );
+    
     void solve( );
 
+    void stepSolve( );
+    
   private:
-    void solveExplicit( );
-    void solveImplicit( );
+    void stepSolveExplicit( );
+    void stepSolveImplicit( );
 
   private:
     bool b_solveInitialEquilibrium; ///< default TRUE.
@@ -201,9 +216,12 @@ class DiffProblemSecond
     bool b_jacobianByParts; ///< 0 if setJacobian is called, 1 if setJacobianByParts is called.
     bool b_alpha; ///< 1 if HHT-alpha integrator is set.
     bool b_convergence; ///< 1 if external convergence function is set.
+    bool b_sparse; ///< 1 if sparse pattern is defined for jacobian matrix. Only for implicit integrators.
     double alpha;
     std::vector< lmx::Vector<T>* > residueParts;
     std::vector< lmx::Matrix<T>* > jacobianParts;
+    std::vector<size_type> v_rows, v_cols; // vectors for sparse pattern of jacobian matrix.
+    NLSolver< DiffProblemSecond<Sys, T>, T > theNLSolver;
     void (Sys::* res)( lmx::Vector<T>& residue,
                        const lmx::Vector<T>& q,
                        const lmx::Vector<T>& qdot,
@@ -370,7 +388,7 @@ template <typename Sys, typename T>
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::setIntegrator
-        ( char* type,
+        ( const char* type,
           double alpha_in
         )
 {
@@ -390,7 +408,7 @@ template <typename Sys, typename T>
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::setIntegrator
-        ( char* type,
+        ( const char* type,
           double beta_in,
           double gamma_in,
           double alpha_in
@@ -402,7 +420,7 @@ template <typename Sys, typename T>
     this->theIntegrator = new IntegratorNEWMARK<T>( beta_in*std::pow(1+alpha,2), gamma_in+alpha );
   }
   else if (!strcmp(type, "NEWMARK"))
-    this->theIntegrator = new IntegratorNEWMARK<T>( beta_in*std::pow(1+alpha,2), gamma_in+alpha );
+    this->theIntegrator = new IntegratorNEWMARK<T>( beta_in/**std::pow(1+alpha,2)*/, gamma_in/*+alpha*/ );
 }
 
 /**
@@ -429,14 +447,14 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver residue computation.
  * @param residue Residue vector.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::
-        iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual )
+        iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q )
 {
   static_cast< IntegratorBaseImplicit<T>* >
-      (this->theIntegrator)->actualize( q_actual );
+      (this->theIntegrator)->integratorUpdate( delta_q );
   (this->theSystem->*res)( residue,
                            this->theConfiguration->getConf(0),
                            this->theConfiguration->getConf(1),
@@ -449,14 +467,14 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver residue computation. Used when ResidueByParts is set.
  * @param residue Residue vector.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::
-        iterationResidueByParts( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual )
+        iterationResidueByParts( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q )
 {
   static_cast< IntegratorBaseImplicit<T>* >
-      (this->theIntegrator)->actualize( q_actual );
+      (this->theIntegrator)->integratorUpdate( delta_q );
 
   (this->theSystem->*res_q_qdot)( *(residueParts[0]),
                                   this->theConfiguration->getConf(0),
@@ -474,14 +492,14 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver residue computation. Used when ALPHA integrator is set.
  * @param residue Residue vector.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::
-        iterationResidueForAlpha( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual )
+        iterationResidueForAlpha( lmx::Vector<T>& residue, lmx::Vector<T>& delta_q )
 {
   static_cast< IntegratorBaseImplicit<T>* >
-      (this->theIntegrator)->actualize( q_actual );
+      (this->theIntegrator)->integratorUpdate( delta_q );
 
   (this->theSystem->*res_q_qdot)( *(residueParts[0]),
                                   this->theConfiguration->getConf(0),
@@ -503,10 +521,10 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver jacobian computation.
  * @param jacobian Tangent matrix.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::iterationJacobian( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual )
+    void DiffProblemSecond<Sys,T>::iterationJacobian( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q )
 {
   (this->theSystem->*jac)( jacobian,
               this->theConfiguration->getConf(0),
@@ -520,10 +538,10 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver jacobian computation. Used when ResidueByParts is set.
  * @param jacobian Tangent matrix.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::iterationJacobianByParts( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual )
+    void DiffProblemSecond<Sys,T>::iterationJacobianByParts( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q )
 {
   (this->theSystem->*jac_q_qdot)( *(jacobianParts[0]),
                                   this->theConfiguration->getConf(0),
@@ -541,10 +559,10 @@ template <typename Sys, typename T>
 /**
  * Function for NLSolver jacobian computation. Used when ALPHA integrator is set.
  * @param jacobian Tangent matrix.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::iterationJacobianForAlpha( lmx::Matrix<T>& jacobian, lmx::Vector<T>& q_actual )
+    void DiffProblemSecond<Sys,T>::iterationJacobianForAlpha( lmx::Matrix<T>& jacobian, lmx::Vector<T>& delta_q )
 {
   (this->theSystem->*jac_q_qdot)( *(jacobianParts[0]),
                                   this->theConfiguration->getConf(0),
@@ -561,10 +579,10 @@ template <typename Sys, typename T>
 
 /**
  * Function for NLSolver convergence evaluation.
- * @param q_actual Configuration computed by the NLSolver.
+ * @param delta_q Configuration computed by the NLSolver.
  */
 template <typename Sys, typename T>
-    bool DiffProblemSecond<Sys,T>::iterationConvergence( lmx::Vector<T>& q_actual )
+    bool DiffProblemSecond<Sys,T>::iterationConvergence( lmx::Vector<T>& delta_q )
 {
   return (this->theSystem->*conv)( this->theConfiguration->getConf(0),
                                    this->theConfiguration->getConf(1),
@@ -575,36 +593,112 @@ template <typename Sys, typename T>
 
 
 /**
+ * Initialize solving function
+ */
+template <typename Sys, typename T>
+    void DiffProblemSecond<Sys,T>::initialize( )
+{
+  this->theConfiguration->setTime( this->to );
+  this->theIntegrator->initialize( this->theConfiguration );
+  if ( ! this->theIntegrator->isExplicit() ){
+    if (b_solveInitialEquilibrium) // default TRUE
+      (this->theSystem->*eval)( this->theConfiguration->getConf(0),
+				this->theConfiguration->getConf(1),
+				this->theConfiguration->setConf(2),
+				this->theConfiguration->getTime( )+this->stepSize
+			      );
+    if( b_residueByParts ){
+      residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
+      residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
+      residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
+      if(b_alpha){
+	// Must create the residueParts[3] for storing the residue_q_qdot_{n-1}
+	residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
+	// First evaluation of the residue in t=to as the first step needs residue_q_qdot_{1-1}
+	(this->theSystem->*res_q_qdot)( *(residueParts[3]),
+					this->theConfiguration->getConf(0),
+					this->theConfiguration->getConf(1)
+				      );
+      }
+    }
+    if( b_jacobianByParts ){
+      jacobianParts.push_back( new lmx::Matrix<T>
+			      (this->theConfiguration->getConf(0).size(),
+				this->theConfiguration->getConf(0).size()
+			      )
+			    );
+      jacobianParts.push_back( new lmx::Matrix<T>
+			      (this->theConfiguration->getConf(0).size(),
+				this->theConfiguration->getConf(0).size()
+			      )
+			    );
+    }
+    if (b_sparse) theNLSolver.setSparse( v_rows, v_cols );
+    theNLSolver.setInitialConfiguration( this->theConfiguration->getConf(0) );
+    theNLSolver.setDeltaInResidue(  );
+    theNLSolver.setSystem( *this );
+    if( b_convergence ){
+      theNLSolver.setConvergence( &DiffProblemSecond<Sys,T>::iterationConvergence );
+    }
+    if( b_residueByParts ){
+      theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidueByParts ); // Also advances the integrator
+      if( b_alpha )
+	theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidueForAlpha ); // Also advances the integrator
+    }
+    else
+      theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidue ); // Also advances the integrator
+    if( b_jacobianByParts ){
+      theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobianByParts );
+      if( b_alpha )
+	theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobianForAlpha );
+    }
+    else
+      theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobian );
+    
+    this->p_delta_q = &( theNLSolver.getSolution() );
+  } 
+  this->writeStepFiles();
+}
+
+
+/**
  * Solve main function
  */
 template <typename Sys, typename T>
     void DiffProblemSecond<Sys,T>::solve( )
 {
-  this->theConfiguration->setTime( this->to );
-  this->theIntegrator->initialize( this->theConfiguration );
+  this->initialize();
+  int max = (int)( (this->tf - this->to) / this->stepSize );
+  for ( int i=0; i<max; ++i){
+    this->stepSolve();
+  }
+}
+
+/**
+ * Solve only one step 
+ */
+template <typename Sys, typename T>
+    void DiffProblemSecond<Sys,T>::stepSolve( )
+{
   if ( this->theIntegrator->isExplicit() )
-    this->solveExplicit();
-  else this->solveImplicit();
+    this->stepSolveExplicit();
+  else this->stepSolveImplicit();
 }
 
 /**
  * Explicit time scheme solver.
  */
 template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::solveExplicit( )
+    void DiffProblemSecond<Sys,T>::stepSolveExplicit( )
 {
-  int max = (int)( (this->tf - this->to) / this->stepSize );
-  for ( int i=0; i<max; ++i){
-    (this->theSystem->*eval)( this->theConfiguration->getConf(0),
-                              this->theConfiguration->getConf(1),
-                              this->theConfiguration->setConf(2),
-                              this->theConfiguration->getTime( )
-                      );
-    this->writeStepFiles();
-    this->theConfiguration->nextStep( this->stepSize );
-    this->theIntegrator->advance( );
-    if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
-  }
+  (this->theSystem->*eval)( this->theConfiguration->getConf(0),
+			    this->theConfiguration->getConf(1),
+			    this->theConfiguration->setConf(2),
+			    this->theConfiguration->getTime( )
+		    );
+  this->theConfiguration->nextStep( this->stepSize );
+  this->theIntegrator->advance( );
+  if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
   this->writeStepFiles();
 }
 
@@ -612,71 +706,13 @@ template <typename Sys, typename T>
  * Implicit time scheme solver.
  */
 template <typename Sys, typename T>
-    void DiffProblemSecond<Sys,T>::solveImplicit( )
+    void DiffProblemSecond<Sys,T>::stepSolveImplicit( )
 {
-  int max = (int)( (this->tf - this->to) / this->stepSize );
-  if (b_solveInitialEquilibrium) // default TRUE
-    (this->theSystem->*eval)( this->theConfiguration->getConf(0),
-                              this->theConfiguration->getConf(1),
-                              this->theConfiguration->setConf(2),
-                              this->theConfiguration->getTime( )
-                            );
-  if( b_residueByParts ){
-    residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
-    residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
-    residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
-    if(b_alpha){
-      // Must create the residueParts[3] for storing the residue_q_qdot_{n-1}
-      residueParts.push_back( new lmx::Vector<T>(this->theConfiguration->getConf(0).size() ) );
-      // First evaluation of the residue in t=to as the first step needs residue_q_qdot_{1-1}
-      (this->theSystem->*res_q_qdot)( *(residueParts[3]),
-                                      this->theConfiguration->getConf(0),
-                                      this->theConfiguration->getConf(1)
-                                    );
-    }
-  }
-  if( b_jacobianByParts ){
-    jacobianParts.push_back( new lmx::Matrix<T>
-                             (this->theConfiguration->getConf(0).size(),
-                              this->theConfiguration->getConf(0).size()
-                             )
-                           );
-    jacobianParts.push_back( new lmx::Matrix<T>
-                             (this->theConfiguration->getConf(0).size(),
-                              this->theConfiguration->getConf(0).size()
-                             )
-                           );
-  }
-  NLSolver< DiffProblemSecond<Sys, T>, T > theNLSolver;
-  theNLSolver.setInitialConfiguration( this->theConfiguration->getConf(0) );
-  theNLSolver.setDeltaInResidue(  );
-  theNLSolver.setSystem( *this );
-  if( b_convergence ){
-    theNLSolver.setConvergence( &DiffProblemSecond<Sys,T>::iterationConvergence );
-  }
-  if( b_residueByParts ){
-    theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidueByParts ); // Also advances the integrator
-    if( b_alpha )
-      theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidueForAlpha ); // Also advances the integrator
-  }
-  else
-    theNLSolver.setResidue( &DiffProblemSecond<Sys,T>::iterationResidue ); // Also advances the integrator
-  if( b_jacobianByParts ){
-    theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobianByParts );
-    if( b_alpha )
-      theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobianForAlpha );
-  }
-  else
-    theNLSolver.setJacobian( &DiffProblemSecond<Sys,T>::iterationJacobian );
-
-  for ( int i=0; i<max; ++i){
-    this->writeStepFiles();
-    this->theConfiguration->nextStep( this->stepSize );
-    this->theIntegrator->advance( );
-    theNLSolver.solve( );
-    if(b_alpha) *residueParts[3] = *residueParts[0];
-    if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
-  }
+  this->theConfiguration->nextStep( this->stepSize );
+  this->theIntegrator->advance( );
+  theNLSolver.solve( );
+  if(b_alpha) *residueParts[3] = *residueParts[0];
+  if(this->b_steptriggered) (this->theSystem->*(this->stepTriggered))( );
   this->writeStepFiles();
 }
 

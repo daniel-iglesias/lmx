@@ -1,6 +1,7 @@
 // #define HAVE_GMM
 
 #include "LMX/lmx.h"
+#include <iostream>
 
 using namespace lmx;
 
@@ -26,4 +27,9 @@ int main(int argc, char** argv){
   c.mult(A,b);
   cout << A << endl << b << endl << c << endl;
   
+  std::ofstream fout("test001.out");
+  fout << A << endl << b << endl << c << endl;
+  fout.close();
+
+  return compareFiles("test001.out", "test001.verified");
 } 

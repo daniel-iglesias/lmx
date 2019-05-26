@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -22,8 +22,6 @@
 #define LMXMATRIX_H
 
 #include<cmath>
-// for compatibility for gcc-4.3 and newer:
-#include <cstring>
 
 #include"lmx_except.h"
 #include"lmx_mat_type_stdmatrix.h"
@@ -37,9 +35,10 @@
     /*!
       \file lmx_mat_matrix.h
 
-      \brief This file contains both the declaration and implementation for Matrix class member and friend functions.
+      \brief This file contains both the declaration and implementation
+       for Matrix class member and friend functions.
 
-      \author Daniel Iglesias Ib��ez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -61,27 +60,34 @@ int setMatrixType(int);
 int getMatrixType();
 
 template <typename C>
-    void latexPrint(std::ofstream& os, char* mat_name, Matrix<C>& mat, int prec);
+    void latexPrint( std::ofstream& os, 
+                     char* mat_name, 
+                     Matrix<C>& mat, 
+                     int prec
+                   );
 
     /**
     \class Matrix 
     \brief Template class Matrix
 
-    This class permits the creation of matrix objects. A Matrix object owns two parameters, nrows and mcolumns, that store the dimension of the matrix container. The data is stored in an atribute (*type_matrix) that points to some class which derives from the Data_mat class.
+    This class permits the creation of matrix objects. A Matrix object owns two 
+    parameters, nrows and mcolumns, that store the dimension of the matrix 
+    container. The data is stored in an atribute (*type_matrix) that points to 
+    some class which derives from the Data_mat class.
 
     @param mrows The number of rows of the Data Container (Data_mat).
     @param ncolumns The number of columns of the Data Container (Data_mat).
     @param reference An Elem_ref object for r/w data access.
     @param *type_matrix The pointer to the matrix data container.
 
-    @author Daniel Iglesias Ib��ez.
+    @author Daniel Iglesias.
     */
 template <typename T> class Matrix{
 protected:
 
   size_type mrows,    /**< Number of rows in matrix object. */ 
         ncolumns; /**< Number of colums in matrix object. */
-  Elem_ref<T>* reference; /**< Reference pointer to an element in type_matrix. */
+  Elem_ref<T>* reference; /**< Reference pointer to an element in type_matrix.*/
   Data_mat<T>* type_matrix; /**< Pointer to the container type. */
 
   Matrix(int);
@@ -126,13 +132,18 @@ public:
 
   void harwellBoeingSave(char*);
 
-  void fillIdentity(T);
+  void fillIdentity( T factor = static_cast<T>(1) );
 
-  void fillRandom(T);
+  void fillRandom(  T factor = static_cast<T>(1) );
 
+  //needs documentation
   void sparsePattern( Vector<size_type>&, Vector<size_type>& );
 
+  //needs documentation
   void sparsePattern( std::vector<size_type>& , std::vector<size_type>& );
+
+  //needs documentation
+  void sparsePattern( DenseMatrix<T>& );
 
   inline Elem_ref<T> operator () (size_type, size_type);
 
@@ -176,17 +187,17 @@ public:
 
   inline Matrix& mult(const DenseMatrix<T>& A, const DenseMatrix<T>& B);
 
-  inline Matrix& multElem(const Matrix&);
+  inline Matrix& multElements(const Matrix&);
 
-  inline Matrix& multElem(const DenseMatrix<T>&);
+  inline Matrix& multElements(const DenseMatrix<T>&);
 
-  inline Matrix& multElem(const Matrix<T>&, const Matrix<T>&);
+  inline Matrix& multElements(const Matrix<T>&, const Matrix<T>&);
 
-  inline Matrix& multElem(const Matrix<T>&, const DenseMatrix<T>&);
+  inline Matrix& multElements(const Matrix<T>&, const DenseMatrix<T>&);
 
-  inline Matrix& multElem(const DenseMatrix<T>&, const Matrix<T>&);
+  inline Matrix& multElements(const DenseMatrix<T>&, const Matrix<T>&);
 
-  inline Matrix& multElem(const DenseMatrix<T>&, const DenseMatrix<T>&);
+  inline Matrix& multElements(const DenseMatrix<T>&, const DenseMatrix<T>&);
 
   /** Function that returns the value in specified position of Matrix object.
    *  */
@@ -200,11 +211,33 @@ public:
         void writeElement(T theValue, size_type m, size_type n) const
     { this->type_matrix->writeElement(theValue, m, n); }
 
+  /** Function adds the value in specified position of Matrix object.
+   *  */
+    inline
+        void addElement(const T theValue, size_type m, size_type n) const
+    { this->type_matrix->addElement(theValue, m, n); }
+
   /** Cleans all numbers below given factor.
    *  */
     inline
         void clean(T factor)
     { this->type_matrix->cleanBelow(factor); }
+
+  //needs documentation
+  /** Clears the object's contents.
+   *  */
+    inline
+        void clear()
+    { this->type_matrix->clear(); }
+
+	//begin JCGO 18/03/09
+  //needs documentation
+  /** Reset contents to 0
+   *  */
+    inline
+        void reset()
+    { this->type_matrix->reset(); }
+	//end JCGO
 
   /** Resize the Matrix with given size parameters.
    *  \param i Rows.
@@ -316,7 +349,37 @@ public:
     inline bool exists( size_type row, size_type col )
     { return this->type_matrix->exists(row, col); }
 
+  /** Retuns 1 if the Matrix is symmetric
+   * and 0 if it does not.
+   * Needs documentation!
+   *  */
+    inline bool checkSymmetry( )
+    {
+      bool result = 1;
+      for (size_type i=0; i<mrows; ++i){
+        for (size_type j=0; j<i; ++j){
+          if( this->readElement(i,j) != this->readElement(j,i) ){
+            result = 0;
+            break;
+          }
+        }
+        if( result == 0 ) break;
+      }
+      return result;
+    }
+  
+  /** DOCUMENT
+   */
+  void factorize(){
+    this->type_matrix->factorize();
+  }
 
+  /** DOCUMENT
+   */
+  void subsSolve( Vector<T>& rhs ){
+    return this->type_matrix->subsSolve( rhs );
+  }
+    
 /////////////////////////////// Friend functions:
 
   /** Function to get a transposed copy of a matrix.
@@ -431,7 +494,12 @@ template <typename T>
     mrows(A.mrows), ncolumns(A.ncolumns)
 {
   initialize_type_matrix( getMatrixType() );
-  type_matrix->resize(mrows, ncolumns);
+  type_matrix->resize(mrows, ncolumns); //can be time consuming for CSC (check)
+  if( getMatrixType() == 1 ){ // Type is CSC:
+      std::vector<size_type> ia,ja;
+      A.writeSparsePattern( ia, ja );
+      type_matrix->setSparsePattern( ia, ja );
+  }
   for(int i=0; i<mrows; ++i){
     for(int j=0; j<ncolumns; ++j){
       this->writeElement( A.readElement(i,j), i, j);
@@ -538,7 +606,7 @@ template <typename T>
  * @param factor Value of diagonal terms. Default is one.
  */
 template <typename T>
-    void Matrix<T>::fillIdentity( T factor = static_cast<T>(1) )
+    void Matrix<T>::fillIdentity( T factor )
 {
   if (this->ncolumns != this->mrows){
     std::stringstream message;
@@ -563,7 +631,7 @@ template <typename T>
  * @param factor Scales the random numbers (default value is unity).
  */
 template <typename T>
-    void Matrix<T>::fillRandom( T factor = static_cast<T>(1) )
+    void Matrix<T>::fillRandom( T factor )
 {
   for (size_type i=0; i<this->mrows; ++i){
     for (size_type j=0; j<this->ncolumns; ++j){
@@ -599,6 +667,20 @@ template <typename T>
                                    std::vector<size_type>& col_index
                                  )
 {
+  this->type_matrix->setSparsePattern( row_index, col_index );
+}
+
+/**
+ * \brief Function for preparing a sparse non-zero pattern in matrix.
+ * Uses a Harwell-Boeing (CSC) like vectors for describing the pattern.
+ * Specially indicated for preparing the CSC matrix for efficient writing. Does nothing in the rest of matrix types.
+ * @param dense_matrix is the matrix with nonzero values.
+ */
+template <typename T>
+    void Matrix<T>::sparsePattern( lmx::DenseMatrix<T>& aDenseMatrix )
+{
+  std::vector<size_type> row_index, col_index;
+  aDenseMatrix.writeSparsePattern( row_index, col_index );
   this->type_matrix->setSparsePattern( row_index, col_index );
 }
 
@@ -912,14 +994,13 @@ template <typename T> inline
   return *this;
 }
 
-
 /**
  * Internal product between matrices. Multiplies each element of object to its equivalent in Matrix B.
  * @param B Matrix to multiply to.
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const Matrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const Matrix<T>& B)
 {
   this->type_matrix->multiplyElements(B.type_matrix);
   return *(this);
@@ -931,9 +1012,9 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const DenseMatrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const DenseMatrix<T>& B)
 {
-  mat_mat_multElem( B.type_matrix, this->type_matrix );
+  mat_mat_multElements( B.type_matrix, this->type_matrix );
   return *(this);
 }
 
@@ -945,7 +1026,7 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const Matrix<T>& A, const Matrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const Matrix<T>& A, const Matrix<T>& B)
 {
   // Must select the matrix to multiply to because can be the same object! so...
   if(this->type_matrix == A.type_matrix)
@@ -967,9 +1048,9 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const Matrix<T>& A, const DenseMatrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const Matrix<T>& A, const DenseMatrix<T>& B)
 {
-  mat_mat_multElem( A.type_matrix, B.type_matrix, this->type_matrix );
+  mat_mat_multElements( A.type_matrix, B.type_matrix, this->type_matrix );
   return *(this);
 }
 
@@ -981,9 +1062,9 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const DenseMatrix<T>& A, const Matrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const DenseMatrix<T>& A, const Matrix<T>& B)
 {
-  mat_mat_multElem( A.type_matrix, B.type_matrix, this->type_matrix );
+  mat_mat_multElements( A.type_matrix, B.type_matrix, this->type_matrix );
   return *(this);
 }
 
@@ -995,9 +1076,9 @@ template <typename T> inline
  * @return Reference to internal product result.
  */
 template <typename T> inline
-    Matrix<T>& Matrix<T>::multElem(const DenseMatrix<T>& A, const DenseMatrix<T>& B)
+    Matrix<T>& Matrix<T>::multElements(const DenseMatrix<T>& A, const DenseMatrix<T>& B)
 {
-  mat_mat_multElem( A.type_matrix, B.type_matrix, this->type_matrix );
+  mat_mat_multElements( A.type_matrix, B.type_matrix, this->type_matrix );
   return *(this);
 }
 

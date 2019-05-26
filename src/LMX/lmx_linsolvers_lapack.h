@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -28,7 +28,7 @@
 
       Implements the fortran interface for using the linear solvers from lapack.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
 
      */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -46,7 +46,7 @@ namespace lmx{
  * \class Gesv
  * \brief Template class for lapack ?gesv routine.
  *
- * @author Daniel Iglesias Ibáñez.
+ * @author Daniel Iglesias .
  */
 template <typename T> class Gesv{
   private:

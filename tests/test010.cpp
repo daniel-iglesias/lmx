@@ -19,8 +19,8 @@ public:
       for (int i=0; i<lhs.size(); ++i)
         lhs.writeElement( std::pow(i+1.,6), i); // lhs_i = i^6
     }
-    temp.multElem( q_in, q_in ); //(x_i)^2
-    res_in.multElem( temp, q_in ); //(x_i)^3
+    temp.multElements( q_in, q_in ); //(x_i)^2
+    res_in.multElements( temp, q_in ); //(x_i)^3
     res_in -= lhs;
   }
 

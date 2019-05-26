@@ -1,3 +1,6 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Jaime Planas, Jose M Sancho                     *
+ ***************************************************************************/
 // TensorRank2.h
 // COFE: continuum-oriented finite elements
 // Copyright  2003-2005 Jaime Planas and Jose M Sancho

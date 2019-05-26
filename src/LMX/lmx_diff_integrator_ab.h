@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
 
       Implements ADAMS-BASHFORD integrator class for solving dynamic systems.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -44,7 +44,7 @@ namespace lmx {
     \brief Template class IntegratorAB.
     Adams-Bashford integrator implementation for ODE systems.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <class T> class IntegratorAB : public IntegratorBase<T>
 {
@@ -140,7 +140,7 @@ namespace lmx {
                                     theConfiguration->getConf( i, 0 ) + theConfiguration->getLastStepSize()*b[order-1][j] * theConfiguration->getConf( i+1, j+1 ) );
                            //        *q[i][0] += h * b[order-1][j] * (*q[i+1][j+1]); // ... + b_i*f_{n-i}
         }
-      // Si se está arrancando no se puede aplicar el orden completo de integración:
+      // Si se estï¿½ arrancando no se puede aplicar el orden completo de integraciï¿½n:
       else
       {
         for ( j=0; j < theConfiguration->getTimeSize()-1; j++){

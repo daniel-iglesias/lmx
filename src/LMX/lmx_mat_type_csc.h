@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Roberto Ortega                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -22,6 +22,10 @@
 
 #include "lmx_mat_data_mat.h"
 #include "lmx_base_iohb.h"
+
+#ifdef HAVE_SUPERLU
+#include "lmx_linsolvers_superlu_interface.h"
+#endif
 
 #ifdef HAVE_GMM
 #include"lmx_mat_type_gmm.h"
@@ -59,6 +63,10 @@ public:
   size_type Nnze; /**< Number of non-zero values. */
   size_type Nrow; /**< Number of rows. */
   size_type Ncol; /**< Number of columns. */
+#ifdef HAVE_SUPERLU
+  Superlu<T>* S;
+#endif
+  
 
 private:
   T zero;
@@ -74,7 +82,9 @@ public:
 
   const T& readElement(const size_type& mrows, const size_type& ncolumns) const;
 
-  void writeElement(T value, size_type mrows, size_type ncolumns);
+  void writeElement(T value, const size_type& mrows, const size_type& ncolumns);
+
+  inline void addElement(T value, const size_type& mrows, const size_type& ncolumns);
 
   T* create_element(size_type, size_type);
 
@@ -97,6 +107,12 @@ public:
   void trn();
 
   void cleanBelow(const double factor);
+
+  void clear();
+  
+  //begin JCGO 18/03/09
+  void reset();  
+  //end JCGO
 
   void read_mm_file(const char* input_file);
 
@@ -124,6 +140,21 @@ public:
 
   void setSparsePattern( std::vector<size_type>&, std::vector<size_type>& );
 
+#ifdef HAVE_SUPERLU
+  void initSLU();
+  
+  void factorize();
+  
+  void subsSolve(Vector<T>& rhs);  
+#else
+  void initSLU(){}
+  
+  void factorize(){}
+  
+  void subsSolve(Vector<T>& rhs){}  
+  
+#endif
+
   friend void mat_vec_mult<>( const Type_csc<T>*,
                               const Type_stdVector<T>*,
                               Type_stdVector<T>*);
@@ -133,6 +164,9 @@ public:
 /// Empty constructor.
 template <typename T> 
     Type_csc<T>::Type_csc()
+#ifdef HAVE_SUPERLU
+  : S(0)
+#endif
 {
     Nrow = 0;
     Ncol = 0;
@@ -148,7 +182,11 @@ template <typename T>
  * \param columns Columns of H-B matrix.
  */
 template <typename T>
-    Type_csc<T>::Type_csc(size_type rows, size_type columns) : Data_mat<T>()
+    Type_csc<T>::Type_csc(size_type rows, size_type columns)
+  : Data_mat<T>()
+#ifdef HAVE_SUPERLU
+  , S(0)
+#endif
 {
   Nrow = rows;
   Ncol = columns;
@@ -270,7 +308,7 @@ template <typename T>
  * \param value Numerical type value.
  */
 template <typename T>
-    void Type_csc<T>::writeElement(T value, size_type mrows, size_type ncolumns)
+    void Type_csc<T>::writeElement(T value, const size_type& mrows, const size_type& ncolumns)
 {
   if(ja[ncolumns]==ja[ncolumns+1]){
     *(this->create_element(mrows, ncolumns) ) = value;
@@ -283,6 +321,36 @@ template <typename T>
       for (size_type i=ja[ncolumns];i<ja[ncolumns+1];++i){
         if (mrows+1==ia[i-1]){
           aa[i-1] = value;
+          return;
+        }
+      }
+      *(this->create_element(mrows, ncolumns) ) = value;
+    }
+  }
+}
+
+/**
+ * Add element method.
+ * Implements a method for adding data on the Harwell-Boeing matrix.
+ * Copy-pasted from writeElement.
+ * \param mrows Row position in Harwell-Boeing matrix.
+ * \param ncolumns Column position in Harwell-Boeing matrix.
+ * \param value Numerical type value.
+ */
+template <typename T>
+    void Type_csc<T>::addElement(T value, const size_type& mrows, const size_type& ncolumns)
+{
+  if(ja[ncolumns]==ja[ncolumns+1]){
+    *(this->create_element(mrows, ncolumns) ) += value;
+  }
+  else{
+    if(mrows+1>ia[ja[ncolumns+1]-2]){
+      *(this->create_element(mrows, ncolumns) ) += value;
+    }
+    else{
+      for (size_type i=ja[ncolumns];i<ja[ncolumns+1];++i){
+        if (mrows+1==ia[i-1]){
+          aa[i-1] += value;
           return;
         }
       }
@@ -457,7 +525,7 @@ template <typename T>
  * Method multiplying element-by-element of two matrices.
  * One would be the object's contents and the other the parameter's contents.
  *
- * Necessary for implementing  Vector to Vector multElem.
+ * Necessary for implementing  Vector to Vector multElements.
  *
  * \param matrix_in pointer to an object that belongs to a class derived from Data.
  */
@@ -484,7 +552,7 @@ template <typename T>
     void Type_csc<T>::trn()
 {
 
-  size_type ja_starO[Nnze];
+  std::vector<size_type> ja_starO(Nnze);
 
   size_type NrowT = Ncol;
   size_type NcolT = Nrow;
@@ -555,6 +623,30 @@ template <typename T>
     if (std::abs(this->aa[i]) < factor) this->aa[i] = static_cast<T>(0);
   }
 }
+
+/**
+ * Clear method.
+ * Wipes all data, clearing column, row and data vectors.
+ */
+template <typename T>
+    void Type_csc<T>::clear()
+{
+  aa.clear(); /**< Matrix data contents. */
+  ia.clear(); /**< Row indexer. */
+  ja.clear(); /**< Column indexer. */
+  Nnze = 0; /**< Number of non-zero values. */
+}
+
+//begin JCGO 18/03/09
+/**
+ * Reset method.
+ */
+template <typename T>
+    void Type_csc<T>::reset()
+{
+	for (size_type i=0; i<this->Nnze; ++i)	this->aa[i] = static_cast<T>(0); 
+}
+//end JCGO
 
 /**
  * Read data in Matrix Market format method.
@@ -732,9 +824,10 @@ template <typename T>
   aa.clear();
   for (i=0; i<row_index.size(); ++i ){
     ia.push_back( row_index(i) );
-    aa.push_back( T(0) );
+    aa.push_back( T(1) );
   }
   for (i=0; i<col_index.size(); ++i ) ja.push_back( col_index(i) );
+  Nnze = aa.size();
 }
 
 /**
@@ -756,7 +849,40 @@ template <typename T>
     aa.push_back( T(0) );
   }
   ja = col_index;
+  Nnze = aa.size();
 }
+
+  
+#ifdef HAVE_SUPERLU
+  template <class T>
+  void Type_csc<T>::initSLU()
+  {
+    S = new Superlu<T>( Nrow,
+                        Ncol,
+                        Nnze,
+                        ia,
+                        ja,
+                        aa );
+    S->initMatrix();
+  }
+  
+  template <class T>
+  void Type_csc<T>::factorize()
+  {
+    if (S == 0) initSLU();
+    S->factorize();
+  }
+
+  template <class T>
+  void Type_csc<T>::subsSolve(Vector<T>& rhs_in){
+    S->setVectors( rhs_in ); // hace x, b.
+    S->initVectors();
+    S->subsSolve();
+    
+    S->get_solution(rhs_in);
+  }
+#endif
+
 };
 
 

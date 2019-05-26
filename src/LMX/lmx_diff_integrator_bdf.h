@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
 
       Implements BDF integrator class for solving dynamic systems.
 
-      \author Daniel Iglesias Ib�ez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -38,7 +38,6 @@
 #include<cmath>
 
 #include"lmx_diff_integrator_base_implicit.h"
-#include"lmx_nlsolvers.h"
 
 namespace lmx {
 
@@ -47,7 +46,7 @@ namespace lmx {
     \brief Template class IntegratorBDF.
     Gear's BDF integrator implementation for ODE systems.
     
-    @author Daniel Iglesias Ib��ez.
+    @author Daniel Iglesias.
     */
 template <class T> class IntegratorBDF : public IntegratorBaseImplicit<T>
 {
@@ -69,7 +68,7 @@ template <class T> class IntegratorBDF : public IntegratorBaseImplicit<T>
     void advance();
   
     /** Actualize with delta in actual time-step. */
-    void actualize( lmx::Vector<T> delta );
+    void integratorUpdate( lmx::Vector<T> delta );
 
     /** Calculates the factor \f$ \frac{\partial qdot_n}{\partial q_n} \f$. */
     double getPartialQdot( )
@@ -170,7 +169,7 @@ namespace lmx {
   }
 
   template <class T>
-      void IntegratorBDF<T>::actualize( lmx::Vector<T> delta )
+      void IntegratorBDF<T>::integratorUpdate( lmx::Vector<T> delta )
   {
     int i;
     if (q->getTimeSize() < order+1){ //orden de integrador > steps

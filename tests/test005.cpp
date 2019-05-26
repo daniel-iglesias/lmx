@@ -30,7 +30,7 @@ int main(int argc, char** argv){
   std::cout << "a-b = " << c << std::endl;
   std::cout << "a-b = " << a-b << std::endl;
 
-  c.multElem(a,b);
+  c.multElements(a,b);
   std::cout << "a(i)*b(i) = " << c << std::endl;
   std::cout << "a*b = " << a*b << std::endl;
 

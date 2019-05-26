@@ -32,15 +32,13 @@
 
       Implements CG linear solver method.
 
-      \author Roberto Ortega Aguilera.
+      \author Roberto Ortega Aguilera, Juan C. GarcÃ­a Orden.
 
      */
 //////////////////////////////////////////// Doxygen file documentation (end)
 
 
 namespace lmx{
-
-//Metodo de los gradientes conjugados
 
 /**
   *
@@ -50,47 +48,26 @@ namespace lmx{
   * with and without preconditioner. It uses LMX matrix and vector facilities
   * so any kind of linked object can be used.
   *
-  * @author Roberto Ortega.
+  * @author Roberto Ortega Aguilera, Juan C. GarcÃ­a Orden.
 */
 template <typename T> class Cg{
 
 typedef double numType;
 
 private:
-  //+Matriz:
-  Matrix<T> A;
-  //+Vector b;
-  Vector<T> b;
-  //+Vector solucion inicial  x={0};
-  Vector<T> x;
-  //+Vector residuo inicial  r1={b};
-  Vector<T> r;
-  Vector<T> d;
-  Vector<T> mp;
-  Vector<T> s;
-  size_type nrow;
-  //+Tolerancia inicial para el residuo
-  //tole=sqrt(h1/h0)
-//   numType tole;
-  T tole;
-  T resi;
-  //Definicion de error aceptable;
-  T epsi;
-//   numType epsi;
-  //Número máximo de iteraciones:
-  size_type kmax;
+	Matrix<T> A;	//+Matrix A;
+	Vector<T> b;	//+Vector b;
+	Vector<T> x;	//+Unknown;
+	T tol;			//+Relative residual tolerance;
+	size_type nrow;	//+Matrix size;
+	size_type kmax;	//+Max iterations;
+	Vector<T> mp;	//+Preconditioner;
 
 public:
-  // Constructor:
-  Cg(Matrix<T>*, Vector<T>*);
-
-  ~Cg();
-
-//+rutina para el precondicionador (diagonal)
-  void precond();
-
-//+rutina para el metodo de los gradientes conjugados
-  Vector<T> solve( int );
+	Cg(Matrix<T>*, Vector<T>*);	//+Constructor;
+	~Cg();						//+Destructor;
+	Vector<T> solve( int );		//+Solver;
+	void precond();
 };
 
 } //namespace lmx
@@ -105,16 +82,19 @@ namespace lmx{
  * @param A_in LHS Matrix
  * @param b_in RHS Vector
  */
-  template <typename T> Cg<T>::Cg(Matrix<T>* A_in, Vector<T>* b_in) : A(*A_in), b(*b_in), r(*b_in), d(*b_in), tole(1), epsi(1E-6)
+template <typename T> Cg<T>::Cg(Matrix<T>* A_in, Vector<T>* b_in)
+:	A(*A_in),
+	b(*b_in),
+	x(),
+	tol(1.0e-6),
+	nrow(0), 
+	kmax(0),
+	mp(*b_in)
 {
-  nrow = A_in->rows();
-  kmax = nrow+20;
-  x.resize( nrow );
-  s.resize( nrow );
-  mp.resize( nrow );
-  for (size_type i=0; i<nrow; ++i) mp(i) = 1;
+	nrow = A_in->rows();
+	kmax = 3*nrow;
+	x.resize( nrow );
 }
-
 
 
 /**
@@ -131,95 +111,111 @@ template <typename T>
  */
 void Cg<T>::precond(){
   
-  double temp;
-
-  for (size_type i=0; i < nrow; ++i){
-    temp = A(i,i);
-    mp(i) = 1. / temp;
-//     if (d(i) != 0){
-      d(i) /= temp;
-//     }
-  }
+	// Diagonal preconditioner
+	for (size_type i=0; i < nrow; ++i) mp(i) = 1. / A.readElement(i,i);
 }
 
 
 //+rutina para el metodo de los gradientes conjugados
 template <typename T>
 /**
- * 
- * @param info 
+ * Solver function
+ * @param info output iteration information
  * @return 
  */
 Vector<T> Cg<T>::solve(int info){
 
-  //valor h y h0
-  T hnew;
-  hnew = r*d;
-
-  T h0 = hnew;
-  Vector<T> q(nrow);
-  Vector<T> temp_vec(nrow);
-  T alfa;
-//   numType alfa;
-  size_type k=1;
-
-  T hold;
-  T temp;
-  T beta;
-//   numType beta;
-
-  while(k < kmax && tole > epsi ){
-    if (info > 0) cout<<"iteracion :"<<k<<"\t";
-
-//     q = A * d;
-    q.mult( A , d );
-
-    //for(size_type i=1;i<Nrow+1;++i)cout<<"w "<<w[i]<<endl;
-    temp = d * q;
-    alfa = hnew / temp;
-//     x = x + alfa * d;
-    temp_vec.mult(alfa, d);
-    x += temp_vec;
-    //for(size_type i=1;i<Nrow+1;++i)cout<<"x "<<x[i]<<endl;cout<<endl;
-
-    if(k%50 != 0){
-//       r = r - alfa * q;
-      temp_vec.mult(alfa, q);
-      r -= temp_vec;
-    }
-    else{
-//       r = b - A*x;
-      temp_vec.mult(A,x);
-      r.subs(b, temp_vec);
-    }
-//       s(i) = mp(i) * r(i);
-    s.multElem(mp,r);
-
-    hold = hnew;
-    hnew = r*s;
-    beta = hnew / hold;
-//     d = s + beta*d;
-    temp_vec.mult(beta,d);
-    d.add(s, temp_vec);
-
-    resi = sqrt(hnew);
-    if (info > 0) cout << "res = " << resi << "\t";
-    tole = sqrt(hnew / h0);
-    if (info > 0) cout << "tole = " << tole << endl;
-    ++k;
+///////// If vector b=0 -> x=0 and end
+  int i;
+  for( i=0; i<b.size(); ++i ){
+    if ( b.readElement(i) != T(0) ) break;
+  }
+  if ( i == b.size() ){
+    x=b;
+    cout<<":::System solved:::"<<endl;
+    return x;
   }
 
+/////////
 
-  if (k==kmax)
-    cout<<":::WARNING:::" << endl
-     << ":::Convegence was not achieved after " << k << " iterations.:::" << endl
-     << ":::Check if the matrix is symmetric.:::" << endl
-     << ":::END WARNING:::" << endl ;
+	Vector<T> r(nrow);	//+Residual;
+	Vector<T> p(nrow);	//+Search direction;
+	Vector<T> h(nrow);
+	Vector<T> s(nrow);
+	T delta;
+	T deltaPrev;
+	T alpha;
+	T tole;
+	T bdelta;
+	
+	Vector<T> vAux(nrow);
+	T aux;
 
-  else
-    cout<<":::System solved:::"<<endl;
+	size_type k=1;
 
-  return x;
+// -----
+		
+	vAux.mult(A,x);
+	r.subs(b,vAux);		// r = b - A*x
+	
+	h.multElements(mp,r);	// h = mp*r;
+	delta = r*h;			// delta = r*h;
+	p = h;
+	
+	vAux.multElements(mp,b);
+	bdelta = b*vAux;		// bdelta = b*mp*b
+	
+	tole = tol*tol*bdelta;
+	
+	while (k < kmax && delta > tole )
+	{
+		if (info > 0) cout<<"iteration :"<<k<<"\t";
+		
+		s.mult(A,p);		// s = A*p
+		
+		aux = p*s;
+		alpha = delta/aux;	// alpha = delta/(p*s)
+
+		vAux.mult(alpha,p);
+		x += vAux;			// x = x + alpha*p
+		
+	    if(k%50 != 0){
+			vAux.mult(alpha,s);
+			r -= vAux;		// r = r - alpha*s
+		}
+		else
+		{
+			vAux.mult(A,x);
+			r.subs(b,vAux);	// r = b - A*x
+		}
+		
+		h.multElements(mp,r);	// h = mp*r
+
+		deltaPrev = delta;
+		delta =	r*h;		// delta = r*h
+
+		aux = delta/deltaPrev;
+		vAux.mult(aux,p);
+		p.add(h,vAux);		// p = h + (delta/deltaPrev)*p
+		
+		if (info > 0) cout << "residual = " << delta << "\t";
+		if (info > 0) cout << "tolerance = " << tole << endl;
+
+		++k;
+	}
+
+	if (k==kmax)
+	{
+		cout<<":::WARNING:::" << endl
+		<< ":::Convegence was not achieved after " << k << " iterations.:::" << endl
+		<< ":::END WARNING:::" << endl ;
+	}
+	else
+    {
+		cout<<":::System solved after " << k << " iterations:::"<<endl;
+	}
+
+return x;
 
 }
 

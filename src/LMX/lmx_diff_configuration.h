@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -31,7 +31,7 @@
 
       This class contains the time information at (n-m) step [m-order-integrator & n-step). Also, the variables that the integrator needs are stored in the parameters.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -45,7 +45,7 @@ namespace lmx {
 
     Basic variables, derivatives and time. The data is stored in the last steps, which number depends on integrator type.
 
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
      */
 template <class T> class Configuration
 {
@@ -54,20 +54,32 @@ template <class T> class Configuration
     int vectorSize;
     std::vector< std::vector< lmx::Vector< T >* > > q; /**< STL vector of vectors of  coordinates with "n-steps" columns and "m-diff system order" rows. */
     lmx::Vector< T >* temp; /**< temporary pointer to vector for advance function */
-    std::vector< double > time; /**< Time vector. Stores all the steps... */
-    double lastStepSize;
+//     std::vector< double > time; /**< Time vector. Stores all the steps... */
+    double lastStepSize, presentTime;
+    int steps;
+    bool verbose;
 
   public:
 
     /** Empty constructor. */
-    Configuration() : vectorSize( 0 )
+    Configuration() 
+    : vectorSize( 0 )
+    , verbose( 1 )
+    , lastStepSize(0)
+    , steps(0)
+    , presentTime(0)
     { }
 
     /** Standard constructor.
      * \param t_o Time at first step.
      */
-    Configuration( double t_o ) : vectorSize( 0 )
-    { time.push_back( t_o ); }
+    Configuration( double t_o ) 
+    : vectorSize( 0 )
+    , verbose( 1 )
+    , lastStepSize(0)
+    , steps(1)
+    , presentTime(t_o)
+    { /*time.push_back( t_o );*/ }
 
     /** Destructor. */
     ~Configuration()
@@ -81,6 +93,12 @@ template <class T> class Configuration
       }
 //       q = 0;
     }
+    
+    /**
+     * @brief Needed to improve the output of DiffProblemFirstSecond runs
+     */
+    void quiet()
+    { verbose = 0; }
 
     void nextStep( double& stepSize );
 
@@ -88,14 +106,16 @@ template <class T> class Configuration
      * @param step Indicates the (actual - step) time step.
      * @return The time value of the step.
      */
-    double& getTime( int step = 0 )
-      { return this->time[time.size() - 1 - step]; }
+    double getTime( int step = 0 )
+//       { return this->time[time.size() - 1 - step]; }
+      { return (presentTime - step*lastStepSize); }
 
     /**
      * Access to size of time line.
      */
     int getTimeSize( )
-    { return this->time.size(); }
+//     { return this->time.size(); }
+    { return steps; }
 
     /**
      * @return Value of last time increment.
@@ -123,7 +143,8 @@ template <class T> class Configuration
      * @param time_in Value of time to be set.
      */
     void setTime( double& time_in )
-      { time.push_back( time_in ); }
+//       { time.push_back( time_in ); }
+    { presentTime = time_in; ++steps; }
 
     void setInitialCondition( int diff_order, lmx::Vector<T>& q_o );
 
@@ -174,6 +195,7 @@ template <class T>
   cout << "--------------------------------------------------------" << endl;
   cout << "An initial condition has been set:" << endl;
   cout << "Derivative order = " << diff_order;
+  cout << ", size of vector = " << q_o.size() << endl;
 //       << ", q_0 = " << *q[diff_order][0] << endl;
   cout << "--------------------------------------------------------" << endl;
 }
@@ -236,15 +258,21 @@ template <class T>
       q[i][j] = q[i][j-1]; // Move back elements
     }
     q[i][0] = temp;
+  // Optional, may improve convergence but increases step-time
+     if (q[i].size() > 1) *q[i][0] = *q[i][1]; 
   }
-   *q[0][0] = *q[0][1]; // Optional, may improve accuracy
 
   lastStepSize = step_size;
-  time.push_back( time.back() + lastStepSize );
+  presentTime+=step_size;
+  ++steps;
+//   time.push_back( time.back() + lastStepSize );
 
-  cout << "--------------------------------------------------------" << endl;
-  cout << "             Solving step number " << time.size()-1 << " time = " << time.back() << endl;
-  cout << "--------------------------------------------------------" << endl;
+  if (verbose){
+    cout << "--------------------------------------------------------" << endl;
+//     cout << "             Solving step number " << time.size()-1 << " time = " << time.back() << endl;
+    cout << "             Solving step number " << steps << " time = " << presentTime << endl;
+    cout << "--------------------------------------------------------" << endl;
+  }
 }
 
 }; // namespace lmx

@@ -113,12 +113,12 @@ int main(int argc, char *argv[])
   cout << "C.mult(B,A) = " << C << endl;
   C.mult(B,D);
   cout << "C.mult(B,D) = " << C << endl;
-  C.multElem(A,B);
-  cout << "C.multElem(A,B) = " << C << endl;
-  C.multElem(B,A);
-  cout << "C.multElem(B,A) = " << C << endl;
-  C.multElem(B,D);
-  cout << "C.multElem(B,D) = " << C << endl;
+  C.multElements(A,B);
+  cout << "C.multElements(A,B) = " << C << endl;
+  C.multElements(B,A);
+  cout << "C.multElements(B,A) = " << C << endl;
+  C.multElements(B,D);
+  cout << "C.multElements(B,D) = " << C << endl;
 
  //   Call from a DenseMatrix Object:
   cout << "A = " << A << endl;
@@ -140,14 +140,14 @@ int main(int argc, char *argv[])
 //  cout << "D.mult(B,D) = " << D << endl;
   D.mult(A,C);
   cout << "D.mult(A,C) = " << D << endl;
-  D.multElem(A,B);
-  cout << "D.multElem(A,B) = " << D << endl;
-  D.multElem(B,A);
-  cout << "D.multElem(B,A) = " << D << endl;
-  D.multElem(B,D);
-  cout << "D.multElem(B,D) = " << D << endl;
-  D.multElem(A,C);
-  cout << "D.multElem(A,C) = " << D << endl;
+  D.multElements(A,B);
+  cout << "D.multElements(A,B) = " << D << endl;
+  D.multElements(B,A);
+  cout << "D.multElements(B,A) = " << D << endl;
+  D.multElements(B,D);
+  cout << "D.multElements(B,D) = " << D << endl;
+  D.multElements(A,C);
+  cout << "D.multElements(A,C) = " << D << endl;
 
 
   

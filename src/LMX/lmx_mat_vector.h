@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   http://code.google.com/p/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -35,7 +35,7 @@
 
       \brief This file contains both the declaration and implementation for Vector class member and friend functions.
 
-      \author Daniel Iglesias Ib��ez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -61,14 +61,14 @@ int getVectorType();
     \param reference An Elem_ref object for r/w data access.
     \param *type_matrix The pointer to the vector data container.
 
-    \author Daniel Iglesias Ib��ez.
+    \author Daniel Iglesias.
     */
 template <typename T> class Vector{
 private:
   size_type elements;    /**< Number of rows in vector object. */
   Elem_ref<T>* reference; /**< Reference pointer to an element in type_matrix. */
   Data_vec<T>* type_vector; /**< Pointer to the container type. */
-
+  static const size_type zero;
 
 public:
   friend class LinearSystem<T>;
@@ -92,9 +92,9 @@ public:
 
   void save(char*);
 
-  void fillIdentity(T);
+  void fillIdentity( T factor = static_cast<T>(1) );
 
-  void fillRandom(T);
+  void fillRandom( T factor = static_cast<T>(1) );
 
   inline Elem_ref<T>& operator () (size_type);
 
@@ -128,9 +128,11 @@ public:
 
   inline Vector& mult(const T&, const Vector<T>&);
 
-  inline Vector& multElem(const Vector<T>&);
+  inline Vector& mult(const Vector<T>&, const Vector<T>&);
+  
+  inline Vector& multElements(const Vector<T>&);
 
-  inline Vector& multElem(const Vector<T>&, const Vector<T>&);
+  inline Vector& multElements(const Vector<T>&, const Vector<T>&);
 
   inline T norm1 () const;
 
@@ -141,9 +143,12 @@ public:
    * \return The element.
     *  */
   T readElement(size_type m) const
-  { if (m >= elements)
-    LMX_THROW(dimension_error, "Row index exceeds vector dimensions");
-    return type_vector->readElement(m,0);
+  { if (m >= elements){
+      std::stringstream message;
+      message << "Row index exceeds vector dimensions. Trying to access element (" << m << "of vecor with dimension " << elements << "." << endl;
+      LMX_THROW(dimension_error, message.str() );
+    }
+    return type_vector->readElement(m,zero);
   }
 
 
@@ -151,7 +156,14 @@ public:
    *  */
   inline
       void writeElement(T theValue, size_type m) const
-  { this->type_vector->writeElement(theValue, m, 0); }
+  { this->type_vector->writeElement(theValue, m, zero); }
+
+
+  /** Function writes the value in specified position of Vector object.
+   *  */
+  inline
+      void addElement(T theValue, size_type m) const
+  { this->type_vector->addElement(theValue, m, zero); }
 
 
   /** Cleans all numbers below given factor.
@@ -161,6 +173,22 @@ public:
     this->type_vector->cleanBelow(factor);
   }
 
+  //needs documentation
+  /** Clears the object's contents.
+   *  */
+  inline
+      void clear()
+  { this->type_vector->clear(); }
+
+	//begin JCGO 18/03/09
+  //needs documentation
+  /** Reset the object's contents.
+   *  */
+  inline
+      void reset()
+  { this->type_vector->reset(); }
+	//end JCGO
+	
   /** Resize the Vector with given size parameter.
    *  \param i New size.
    *  */
@@ -221,7 +249,7 @@ public:
     T scalar_product = 0;
 
     for (size_type i=0; i<elements; ++i)
-      scalar_product += type_vector->readElement(i,0) * B.readElement(i);
+      scalar_product += type_vector->readElement(i,zero) * B.readElement(i);
     return scalar_product;
   }
 
@@ -269,6 +297,9 @@ public:
 /////////////////////////////// Implementation of the methods defined previously
 
 namespace lmx {
+
+template <typename T>
+   const size_type Vector<T>::zero = 0;
 
 /**
  * Empty constructor.
@@ -330,7 +361,7 @@ template <typename T>
   }
 
   type_vector->resize(elements, 1);
-  reference = new Elem_ref<T>(type_vector);
+  reference = new Elem_ref<T>(this->type_vector);
 
 }
 
@@ -404,10 +435,10 @@ template <typename T>
  * \param factor Value of terms. Default is unit value.
  */
 template <typename T>
-    void Vector<T>::fillIdentity( T factor = static_cast<T>(1) )
+    void Vector<T>::fillIdentity( T factor )
 {
   for (size_type i=0; i<this->elements; ++i)
-    this->type_vector->writeElement(static_cast<T>(factor),i,1);
+    this->type_vector->writeElement(static_cast<T>(factor),i,zero);
 }
 
 /**
@@ -415,7 +446,7 @@ template <typename T>
  * \param factor Scales the random numbers (default value is unity).
  */
 template <typename T>
-    void Vector<T>::fillRandom( T factor = static_cast<T>(1) )
+    void Vector<T>::fillRandom( T factor )
 {
   for (size_type i=0; i<this->elements; ++i)
       this->type_vector->writeElement( factor * static_cast<T>( std::rand() ) / static_cast<T>(RAND_MAX),i,1);
@@ -438,7 +469,7 @@ template <typename T>
     LMX_THROW(dimension_error, message.str() );
   }
 
-  reference->write_pos(row,0);
+  reference->write_pos(row,zero);
   return *reference;
 }
 
@@ -453,7 +484,7 @@ template <typename T>
 {
   this->elements = rows(A);
   for (size_type i=0; i<this->elements; ++i)
-    this->operator ( )(i,0) = readElement(A,i,0);
+    this->operator ( )(i,zero) = readElement(A,i,zero);
   return *this;
 }
 
@@ -797,6 +828,31 @@ template <typename T> inline
   return *(this);
 }
 
+/**
+ * Cross product
+ *
+ * Computes the cross product A x B. Not optimized but useful
+ * \param A Vector of size m.
+ * \param B Vector of size m.
+ * \return Reference to result.
+ */
+template <typename T> inline
+    Vector<T>& Vector<T>::mult(const Vector<T>& A, const Vector<T>& B)
+{
+  if ( A.size() != 3 || B.size() != 3 || this->elements != 3 ){
+    std::stringstream message;
+    message << "Vectors dimensions mismatch for Cross product ( this->mult(A,B) ). \n"
+        << "LHS vector dimension: (" << this->elements << ")" << endl
+        << "RHS vector A dimension: (" << A.size() << ")" << endl
+        << "RHS vector B dimension: (" << B.size() << ")" << endl;
+        LMX_THROW(dimension_error, message.str() );
+  }
+    this->operator ( )(0) = A.readElement(1) * B.readElement(2) - A.readElement(2) * B.readElement(1);
+    this->operator ( )(1) = A.readElement(2) * B.readElement(0) - A.readElement(0) * B.readElement(2);
+    this->operator ( )(2) = A.readElement(0) * B.readElement(1) - A.readElement(1) * B.readElement(0);
+  return *(this);
+}
+
 
 /**
  * Internal product
@@ -807,7 +863,7 @@ template <typename T> inline
  */
   template <typename T>
       inline
-      Vector<T>& Vector<T>::multElem(const Vector<T>& B)
+      Vector<T>& Vector<T>::multElements(const Vector<T>& B)
   {
     this->type_vector->multiplyElements(B.type_vector);
     return *(this);
@@ -824,7 +880,7 @@ template <typename T> inline
 
   template <typename T>
       inline
-      Vector<T>& Vector<T>::multElem(const Vector<T>& A, const Vector<T>& B)
+      Vector<T>& Vector<T>::multElements(const Vector<T>& A, const Vector<T>& B)
   {
     if ( this->elements != A.size() || this->elements != B.size() ){
       std::stringstream message;
@@ -848,7 +904,7 @@ template <typename T>
 {
   T norm = 0;
   for (size_type i=0; i<elements; ++i)
-    norm += std::abs(type_vector->readElement(i,0));
+    norm += std::abs(type_vector->readElement(i,zero));
 
   return norm;
 }
@@ -860,7 +916,7 @@ template <typename T>
 {
   T norm = 0;
   for (size_type i=0; i<elements; ++i)
-    norm += type_vector->readElement(i,0) * type_vector->readElement(i,0);
+    norm += type_vector->readElement(i,zero) * type_vector->readElement(i,zero);
   return std::sqrt(norm);
 }
 

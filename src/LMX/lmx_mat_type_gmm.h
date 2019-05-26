@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -28,7 +28,7 @@
       
       \brief This file contains both the declaration and implementation for type_gmm (dense gmm Matrix) class member functions.
       
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias 
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -44,7 +44,7 @@ namespace lmx {
     
     @param contents Corresponds to a gmm::dense_matrix and it's the base of the methods implemented for this class.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <typename T> class Type_gmm : public Data_mat<T>
 {
@@ -63,6 +63,8 @@ public:
 
   void resize(size_type, size_type);
 
+  void factorize(){}
+  
   /** Read element method.
     * Implements a method for reading data of the dense matrix.
     * \param mrows Row position in dense matrix.
@@ -76,8 +78,17 @@ public:
       * \param mrows Row position in dense matrix.
       * \param ncolumns Column position in dense matrix.
       * \param value Numerical type value. */
-  void writeElement(T value, size_type mrows, size_type ncolumns)
+  void writeElement(T value, const size_type& mrows, const size_type& ncolumns)
    { contents(mrows, ncolumns) = value; }
+  
+    /** Add element method.
+      * Implements a method for adding data on the Harwell-Boeing matrix.
+      * Copy-pasted from writeElement.
+      * \param mrows Row position in dense matrix.
+      * \param ncolumns Column position in dense matrix.
+      * \param value Numerical type value. */
+  inline void addElement(T value, const size_type& mrows, const size_type& ncolumns)
+   { contents(mrows, ncolumns) += value; }
   
    /** Method for knowing the number of data rows. 
     * \returns Number of rows.
@@ -134,7 +145,7 @@ public:
    }
 
   /** Method multiplying element-by-element of two matrices. One would be the object's contents and the other the parameter's contents.
-    * Necessary for implementing  Vector to Vector multElem.
+    * Necessary for implementing  Vector to Vector multElements.
     * \param matrix_in pointer to an object that belongs to a class derived from Data.
    */
    void multiplyElements(const Data<T>* matrix_in)
@@ -201,6 +212,25 @@ public:
       * \param factor Reference value for cleaning. */
    void cleanBelow(const double factor)
    { gmm::clean(contents, factor); }
+
+   /**
+    * Clear method.
+    * Wipes all data.
+    */
+   void clear()
+   {
+     gmm::clear(contents); /**< Matrix data contents. */
+   }
+
+	//begin JCGO 18/03/09
+   /**
+    * Reset method..
+    */
+   void reset()
+   {
+   	gmm::clean(contents,0.0);
+   }
+   //end JCGO
 
   /** Data pointer method
    * Gives the direction in memory of (pointer to) the object.

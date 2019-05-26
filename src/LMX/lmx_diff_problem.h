@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -32,11 +32,12 @@
 
       This is the base file of lmx_diff systems' manipulation and solution.
 
-      \author Daniel Iglesias Ib��ez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
 #include <map>
+#include"lmx_nlsolvers.h"
 #include "lmx_diff_configuration.h"
 #include "lmx_diff_integrator_ab.h"
 #include "lmx_diff_integrator_am.h"
@@ -46,13 +47,13 @@
 namespace lmx {
 
     /**
-    \class DiffProblem 
+    \class DiffProblem
     \brief Template class DiffProblem.
     Implementation for ODE system solvers.
-    
-  This class implements methods for defining and solving initial value problems described by a TotalDiff class' derivided object, and initial conditions in the form \f$ \dot{q}(t_o) = \dot{q}_o \f$,  \f$ q(t_o) = q_o \f$.
-    
-    @author Daniel Iglesias Ib��ez.
+
+    This class implements methods for defining and solving initial value problems described by a TotalDiff class' derivided object, and initial conditions in the form \f$ \dot{q}(t_o) = \dot{q}_o \f$,  \f$ q(t_o) = q_o \f$.
+
+    @author Daniel Iglesias.
     */
 template <typename Sys, typename T=double> class DiffProblem{
 
@@ -60,11 +61,13 @@ template <typename Sys, typename T=double> class DiffProblem{
 
     /** Empty constructor. */
     DiffProblem()
-	 : theConfiguration(0)
-	 , theIntegrator(0)
-	 , theNLSolver(0)
-	 , theSystem(0)
+	   : theConfiguration(0)
+	   , theIntegrator(0)
+	   , theNLSolver(0)
+	   , theSystem(0)
+     , p_delta_q(0)
      , b_steptriggered(0)
+     , vervosity(2)
     {}
 
     /** Destructor. */
@@ -78,32 +81,42 @@ template <typename Sys, typename T=double> class DiffProblem{
     { theSystem = &system_in; }
 
     void setIntegrator( int type, int opt1=0, int opt2=0 );
-    void setIntegrator( char* type, int opt2=0 );
+    void setIntegrator( const char* type, int opt2=0 );
     void setInitialConfiguration( lmx::Vector<T>& q_o );
     void setInitialConfiguration( lmx::Vector<T>& q_o, lmx::Vector<T>& qdot_o );
-    void setOutputFile( char* filename, int diffOrder );
+    void setOutputFile( const char* filename, int diffOrder );
     void setTimeParameters( double to_in, double tf_in, double step_size_in );
     void iterationResidue( lmx::Vector<T>& residue, lmx::Vector<T>& q_actual );
-	void setStepTriggered( void (Sys::* stepTriggered_in)() );
-	// needs documentation:
-	void setConvergence( double eps_in )
-	{ epsilon = eps_in; }
+    void setStepTriggered( void (Sys::* stepTriggered_in)() );
+    // needs documentation:
+    void setConvergence( double eps_in )
+    { epsilon = eps_in; }
 
-	// needs documentation:
-	const lmx::Vector<T>& getConfiguration( int order, int step=0)
-	{ return theConfiguration->getConf( order, step ); }
+    // needs documentation:
+    const lmx::Vector<T>& getConfiguration( int order, int step=0)
+    { return theConfiguration->getConf( order, step ); }
+
+    bool isIntegratorExplicit()
+    { if(theIntegrator) return this->theIntegrator->isExplicit(); }
+
+    void setVervosity(int level){
+        vervosity = level;
+    }
 
     /**
      * Solve method to be implemented in derived classes.
      */
+    virtual void initialize( )=0;
+    virtual void stepSolve( )=0;
     virtual void solve( )=0;
+    void advance(); ///< Advances the configuration and the integrator without solving the system.
 
   protected:
     void writeStepFiles();
 
   private:
-    virtual void solveExplicit( ) = 0;
-    virtual void solveImplicit( ) = 0;
+    virtual void stepSolveExplicit( ) = 0;
+    virtual void stepSolveImplicit( ) = 0;
 
   protected:
     bool b_steptriggered; ///< 1 if stepTriggered function is set.
@@ -111,12 +124,14 @@ template <typename Sys, typename T=double> class DiffProblem{
     lmx::IntegratorBase<T>* theIntegrator; ///< Pointer to the Integrator object, (auto-created).
     lmx::NLSolver<T>* theNLSolver; ///< Pointer to the NLSolver object, (auto-created).
     Sys* theSystem; ///< Pointer to object where the differential system is defined.
+    lmx::Vector<T>* p_delta_q; ///< Stores pointer to NLSolver increment.
     double to; ///< Value of the start time stored from input.
     double tf; ///< Value of the finish time stored from input.
     double stepSize; ///< Value of the time step stored from input.
 	double epsilon; ///< Value for L2 convergence.
     std::map< int, std::ofstream* > fileOutMap; ///< collection of output streams for each diff-order requested.
     void (Sys::* stepTriggered)(); ///< function called at the end of each time step
+    int vervosity;
 };
 
 
@@ -135,19 +150,19 @@ template <typename Sys, typename T>
     case 0 : // integrator == 0 -> Adams-Bashford
       theIntegrator = new IntegratorAB<T>( opt1 );
     break;
-      
+
     case 1 : // integrator == 1 -> Adams-Moulton
       theIntegrator = new IntegratorAM<T>( opt1 );
     break;
-      
+
     case 2 : // integrator == 2 -> BDF
       theIntegrator = new IntegratorBDF<T>( opt1 );
     break;
-    
+
     case 3 : // integrator == 2 -> BDF
       theIntegrator = new IntegratorCentralDifference<T>( );
     break;
-    
+
   }
 
 }
@@ -158,7 +173,7 @@ template <typename Sys, typename T>
  * @param opt2 Optional value for some integrators.
  */
 template <typename Sys, typename T>
-    void DiffProblem<Sys,T>::setIntegrator( char* type, int opt2 )
+    void DiffProblem<Sys,T>::setIntegrator( const char* type, int opt2 )
 {
   if (!strcmp(type, "AB-1")) theIntegrator = new IntegratorAB<T>( 1 );
   else if (!strcmp(type, "AB-2")) theIntegrator = new IntegratorAB<T>( 2 );
@@ -189,7 +204,7 @@ template <typename Sys, typename T>
   theConfiguration = new Configuration<T>;
 
   theConfiguration->setInitialCondition(0, q_o);
-
+   if (vervosity == 0) theConfiguration->quiet();
 }
 
 /**
@@ -205,7 +220,7 @@ template <typename Sys, typename T>
 
   theConfiguration->setInitialCondition(0, q_o);
   theConfiguration->setInitialCondition(1, qdot_o);
-
+  if (vervosity == 0) theConfiguration->quiet();
 }
 
 
@@ -213,10 +228,10 @@ template <typename Sys, typename T>
    * Defines which variables to store, specifing the file name for each diff-order.
    *
    * @param filename Name of file for storing variables.
-   * @param diffOrder 
+   * @param diffOrder
    */
 template <typename Sys, typename T>
-    void DiffProblem<Sys,T>::setOutputFile( char* filename, int diffOrder )
+    void DiffProblem<Sys,T>::setOutputFile( const char* filename, int diffOrder )
 {
   if( !(fileOutMap[diffOrder] == 0) ){
     cout << "WARNING: Changing opened file for diff order = " << diffOrder << endl;
@@ -230,7 +245,7 @@ template <typename Sys, typename T>
 
   /**
    * Defines basic time parameters.
-   * 
+   *
    * @param to_in Initial time.
    * @param tf_in End time
    * @param step_size_in Prefered time step.
@@ -270,6 +285,18 @@ template <typename Sys, typename T>
 {
   this->stepTriggered = stepTriggered_in;
   b_steptriggered = 1;
+}
+
+  /**
+   * Advances the configuration and the integrator without solving the system.
+   */
+template <typename Sys, typename T>
+    void DiffProblem<Sys,T>::advance()
+{
+  this->theConfiguration->nextStep( this->stepSize );
+  this->theIntegrator->advance( );
+  if(this->b_steptriggered) (this->theSystem->*stepTriggered)( );
+  this->writeStepFiles();
 }
 
 

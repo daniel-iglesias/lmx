@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef LMXNL_SOLVERS_H
-#define LMXNL_SOLVERS_H
+#ifndef LMXNL_SOLVERS_DOUBLE_H
+#define LMXNL_SOLVERS_DOUBLE_H
 
 #include<iostream>
 
@@ -32,15 +32,13 @@
      *
      * Implements a typical residue "R(q) = 0" system and the methods for solving it.
      *
-     * \author Daniel Iglesias Ib��ez
+     * \author Daniel Iglesias
      */
 //////////////////////////////////////////// Doxygen file documentation (end)
 
 
 
 namespace lmx {
-
- static int nl_solver_type = 0; /**< This variable switches between different types of non-linear solvers. */
 
     /**
      * \class NLSolver
@@ -49,7 +47,7 @@ namespace lmx {
      *
      * This class permits the creation of a non-linear solver object.
      *
-     * @author Daniel Iglesias Ib��ez.
+     * @author Daniel Iglesias.
      */
 
   template <typename Sys, typename T=double> class NLSolver{
@@ -61,11 +59,12 @@ namespace lmx {
          , conv1(0)
          , conv2(0)
          , conv3(0)
-		 , epsilon(1E-5)
+         , epsilon(1E-6)
          , externalConvergence1(0)
          , externalConvergence2(0)
          , externalConvergence3(0)
          , deltaInResidue(0)
+         , info(1)
      /**
       * Empty constructor. 
       */
@@ -77,6 +76,12 @@ namespace lmx {
          */
        { if(increment){delete increment; increment = 0;}
        }
+       
+       /** Set information level. 
+         */
+       void setInfo(int level)
+       { info = level; }
+
 
        template <class C>
            void setInitialConfiguration( const lmx::Vector<C>& q_in )
@@ -125,7 +130,6 @@ namespace lmx {
       void setConvergence( double eps_in )
        /**
        * Defines the epsilon value for the L2 norm.
-       * :::needs documentation:::
        * @param eps_in Value of the maximum L2 limit.
         */
       { epsilon = eps_in; }
@@ -137,39 +141,42 @@ namespace lmx {
         */
       { conv1 = convergence_in; externalConvergence1 = 1; }
 
-      void setConvergence( bool (Sys::*convergence_in)(lmx::Vector<T>&, lmx::Vector<T>&) )
+      void setConvergence
+        ( bool (Sys::*convergence_in)(lmx::Vector<T>&, lmx::Vector<T>&) )
        /**
-       * Defines the optional member function for convergence evaluation with residue and configuration parameters.
-       * :::needs documentation:::
-       * @param convergence_in Convergence evaluation member function.
-        */
+         * Defines the optional member function for convergence evaluation with residue and configuration parameters.
+         * @param convergence_in Convergence evaluation member function.
+         */
       { conv2 = convergence_in; externalConvergence2 = 1; }
 
       void setConvergence( bool (Sys::*convergence_in)(lmx::Vector<T>&, lmx::Vector<T>&, lmx::Vector<T>&) )
        /**
-       * Defines the optional member function for convergence evaluation with residue, configuration and 
-	   * increment vector parameters.
-       * :::needs documentation:::
-       * @param convergence_in Convergence evaluation member function.
-        */
+         * Defines the optional member function for convergence evaluation with residue, configuration and 
+	       * increment vector parameters.
+         * @param convergence_in Convergence evaluation member function.
+         */
       { conv3 = convergence_in; externalConvergence3 = 1; }
 
       bool convergence ( );
 
-      void solve(int);
+      void solve(int max_iter = 100);
 
       lmx::Vector<T>& getSolution()
        /**
-        * Solution vector read-write access.
-        * @return Reference to the solution vector.
-        */
-        { return this->q; }
+         * Solution vector read-write access.
+         * @return Reference to the solution vector.
+         */
+      { return this->q; }
+
+      void setSparse ( std::vector<size_type>& rows, std::vector<size_type> columns )
+          // Needs documentation
+      { jac_matrix.sparsePattern( rows, columns ); }
 
     private:
       lmx::Vector<T> q; /**< Coordinates values for nl iterations. */
       lmx::Vector<T> delta_q; /**< Coordinates values for nl iterations. */
-      lmx::Matrix<T> jac_matrix; /**< Jacobian -tangent- matrix pointer (only used in Newton's method). */
-      lmx::Vector<T> res_vector; /**< Residual vector pointer. */
+      lmx::Matrix<T> jac_matrix; /**< Jacobian -tangent- matrix (only used in Newton's method). */
+      lmx::Vector<T> res_vector; /**< Residual vector. */
       lmx::LinearSystem<T>* increment; // jac_matrix*\delta q + f = 0
                                       // A*x = b
       Sys* theSystem;
@@ -178,13 +185,13 @@ namespace lmx {
       bool (Sys::*conv1)(lmx::Vector<T>&);
       bool (Sys::*conv2)(lmx::Vector<T>&, lmx::Vector<T>&);
       bool (Sys::*conv3)(lmx::Vector<T>&, lmx::Vector<T>&, lmx::Vector<T>&);
-	  double epsilon;
+	    double epsilon, energy_i, energy_0;
       bool externalConvergence1;
       bool externalConvergence2;
       bool externalConvergence3;
       bool deltaInResidue;
-
-
+      int info;
+      int iteration;
  };
 
 }; // namespace lmx
@@ -201,12 +208,28 @@ namespace lmx {
          * Is used if no external convergence function is set.
          */
   { 
-    if (this->res_vector.norm2() < epsilon) {return 1;}
-    else { return 0; }
+    if( deltaInResidue == 0 ){ // use norm2 criteria
+      if (this->res_vector.norm2() < epsilon) {return 1;}
+      else { return 0; }
+    }
+    else{ // use energetic criteria
+      if( iteration == 0 ){
+        energy_0 = fabs(res_vector * q); // store first residual energy
+//        cout << "iteration, energy = "<< iteration << " "<< energy_0 << endl;
+        if (energy_0 < 1E-50) return 1; // too small energy, rare
+        else return 0; // common return value
+      }
+      else{ // rest of iterations
+        energy_i = fabs(res_vector * q);
+        energy_i /= energy_0; // dimensionless residual energy rate
+        if (energy_i < epsilon) return 1; // convergence!!
+        else return 0; // not converged
+      }
+    }
   }
 
   template <typename Sys, class T>
-      void NLSolver<Sys, T>::solve(int max_iter = 100)
+      void NLSolver<Sys, T>::solve(int max_iter)
         /**
          * Solve function. Initiates the nl-solver loop.
          * @param max_iter Defines the maximun number of iterations for each iteration.
@@ -224,47 +247,57 @@ namespace lmx {
       case 0 : // select_nl_solver == 0 -> Newton's method
         if (!increment)
           increment = new lmx::LinearSystem<T>(jac_matrix, delta_q, res_vector);
-        cout << "     iter-NL\t  | RES |\t|| RES ||\t|| Dq ||" << endl;
-        cout.setf(std::ios::scientific, std::ios::floatfield);
-        cout.precision(3);
+        if ( info > 0 ){
+          cout << "     iter-NL\t  | RES |\t|| RES ||\t|| Dq ||" << endl;
+          cout.setf(std::ios::scientific, std::ios::floatfield);
+          cout.precision(3);
+        }
 
-        for(int i=0; i<max_iter; i++){
-          cout << "\t" << i << "\t";
+        for(iteration=0; iteration<max_iter; iteration++){
+          if ( info > 0 )
+            cout << "\t" << iteration << "\t";
           if (deltaInResidue) (theSystem->*res)(res_vector, delta_q);
           else                (theSystem->*res)(res_vector, q);
           res_vector *= -1.;
-          cout << res_vector.norm1() << "\t" << res_vector.norm2() << "\t";
+          if ( info > 0 )
+            cout << res_vector.norm1() << "\t" << res_vector.norm2() << "\t";
 
           if ( externalConvergence1 ){
             if ( (theSystem->*conv1)(res_vector) ){
-              std::cout << endl << endl;
+              if ( info > 0 )
+                std::cout << endl << endl;
               break;
             }
           }
           else if ( externalConvergence2 ){
             if ( (theSystem->*conv2)(res_vector, q) ){
-              std::cout << endl << endl;
+              if ( info > 0 )
+                std::cout << endl << endl;
               break;
             }
           }
           else if ( externalConvergence3 ){
             if ( (theSystem->*conv3)(res_vector, q, increment->getSolution()) ){
-              std::cout << endl << endl;
+              if ( info > 0 )
+                std::cout << endl << endl;
               break;
             }
           }
           else if (this->convergence() ){
-            std::cout << endl << endl;
+            if ( info > 0 )
+              std::cout << endl << endl;
             break;
           }
           (theSystem->*jac)(jac_matrix, q);
-          q += increment->solveYourself();
-          std::cout << increment->getSolution().norm2() << endl;
+          q += increment->solveYourself(); // = delta_q
+          if ( info > 0 )
+            std::cout << increment->getSolution().norm2() << endl;
         }
 
         break;
     }
-    cout.unsetf(std::ios::floatfield);  }
+    if ( info > 0 )
+      cout.unsetf(std::ios::floatfield);  }
 
 }; // namespace lmx
 

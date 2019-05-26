@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -21,7 +21,7 @@
 #define LMXDATA_H
 
 #ifdef HAVE_GMM
-  #include "gmm.h"
+  #include "gmm/gmm.h"
 #endif
 
 #include "lmx_mat_data_blas.h"
@@ -34,7 +34,7 @@
       
       For classes derived from Data pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
       
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -52,7 +52,7 @@ namespace lmx {
     
     This class represents the skeleton for the data container used by the Vector and Matrix classes. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in the Vector class.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias.
     */
 template <typename T> class Data{
 public:
@@ -75,9 +75,12 @@ public:
   virtual const T& readElement(const size_type&, const size_type&) const = 0;
 
   /** Write method for storing data.
-   * \returns Value of the data stored in the (size_type,size_type) position.
    */
-  virtual void writeElement(T, size_type, size_type) = 0;
+  virtual void writeElement(T, const size_type&, const size_type&) = 0;
+
+  /** Write method for adding to data.
+   */
+  virtual void addElement(T, const size_type&, const size_type&) = 0;
 
   /** Method for knowing the number of data rows. 
    * \returns Number of rows.
@@ -110,7 +113,7 @@ public:
   virtual void multiplyScalar(const T&) = 0;
   
   /** Method multiplying element-by-element of two arrays. One would be the object's contents and the other the parameter's contents.
-   * Necessary for implementing  Vector to Vector multElem.
+   * Necessary for implementing  Vector to Vector multElements.
    */
   virtual void multiplyElements(const Data*) = 0;
   
@@ -118,6 +121,18 @@ public:
    * Method for cleaning all elements below a given factor.
    */
   virtual void cleanBelow(const double) = 0;
+
+  /**
+   * Method for clearing all elements.
+   */
+  virtual void clear() = 0;
+
+	//begin JCGO 18/03/09
+  /**
+   * Method for all elements to 0
+   */
+  virtual void reset() = 0;
+  //end JCGO
 
 };
 

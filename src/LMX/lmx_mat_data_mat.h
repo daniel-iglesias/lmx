@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -33,7 +33,7 @@
       
       For classes derived from Data_mat pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
       
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias 
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -51,7 +51,7 @@ template <typename T> class Vector;
     
     This class represents the skeleton for the data container used by Matrix and Vector classes. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in Matrix and Vector classes.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <typename T> class Data_mat : public Data<T>{
 public:
@@ -91,8 +91,12 @@ public:
    */
   virtual bool exists( size_type, size_type ) = 0;
 
+  virtual void factorize() = 0;
+  
+  virtual void subsSolve(Vector<T>& rhs) {}
+  
   /** Prepares the sparse structure of a CSC matrix. */
-  virtual void setSparsePattern( Vector<T>&, Vector<T>& )
+  virtual void setSparsePattern( Vector<size_type>&, Vector<size_type>& )
   {}
 
   /** Prepares the sparse structure of a CSC matrix. */
@@ -100,6 +104,8 @@ public:
                                  std::vector<size_type>&
                                )
   {}
+  
+
 };
 
 };

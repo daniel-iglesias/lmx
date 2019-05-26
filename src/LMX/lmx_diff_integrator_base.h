@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -29,7 +29,7 @@
 
       Implements the basic structure that will have the integrators that solve initial value problems.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -44,7 +44,7 @@ namespace lmx {
     
     Integrator basic structure.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <class T> class IntegratorBase{
 

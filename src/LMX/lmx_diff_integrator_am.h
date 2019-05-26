@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
 
       Implements ADAMS-MOULTON integrator class for solving dynamic systems.
 
-      \author Daniel Iglesias Ib�ez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -38,7 +38,6 @@
 #include<cmath>
 
 #include"lmx_diff_integrator_base_implicit.h"
-#include"lmx_nlsolvers.h"
 
 namespace lmx {
 
@@ -47,7 +46,7 @@ namespace lmx {
     \brief Template class IntegratorAM.
     Adams-Moulton integrator implementation for ODE systems.
     
-    @author Daniel Iglesias Ib��ez.
+    @author Daniel Iglesias.
     */
 template <class T> class IntegratorAM : public IntegratorBaseImplicit<T>
 {
@@ -74,7 +73,7 @@ public:
   void advance();
 
   /** Actualize with delta in actual time-step. */
-  void actualize( lmx::Vector<T> delta );
+  void integratorUpdate( lmx::Vector<T> delta );
 
   /** Calculates the factor \f$ \frac{\partial qdot_n}{\partial q_n} \f$. */
   double getPartialQdot( )
@@ -126,6 +125,8 @@ namespace lmx {
   template <class T>
       void IntegratorAM<T>::initialize( Configuration<T>* configuration_in )
   {
+#undef max
+
     q = configuration_in;
     q->setStoredSteps( 2, std::max(order,2), order );
   }
@@ -162,7 +163,7 @@ namespace lmx {
   }
 
   template <class T>
-      void IntegratorAM<T>::actualize( lmx::Vector<T> delta )
+      void IntegratorAM<T>::integratorUpdate( lmx::Vector<T> delta )
   {
     int i;
     if (q->getTimeSize() < order/*+1*/){ //orden de integrador-1 > steps

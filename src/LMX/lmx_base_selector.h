@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
 
       Selector class is not usually instantiated. Instead, its friend functions are used by Matrix, Vector and LinearSystem objects for getting the type that is being used.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -90,6 +90,10 @@ inline int getVectorType(){ return setVectorType(-1); }
   /** Function reads the type of LinearSystem that is used.
    */
 inline int getLinSolverType(){ return setLinSolverType(-1); }
+
+
+static int nl_solver_type = 0; /**< This variable switches between different types of non-linear solvers. */
+
 
 } // namespace lmx 
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   dani@localhost.localdomain                                            *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@ class Data;
 
       Elem_ref class is used by Matrix and Vector objects as a parameter.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias 
       
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -50,7 +50,7 @@ int getMatrixType();
     @param i Row where the original value is stored.
     @param j Column where the original value is stored.
 
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 
 template <typename T> class Elem_ref{

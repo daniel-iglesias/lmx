@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -29,7 +29,7 @@
 
       Implements the basic structure that will have the implicit integrators.
 
-      \author Daniel Iglesias Ibáñez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -44,7 +44,7 @@ namespace lmx {
     
     Implicit integrator basic structure.
     
-    @author Daniel Iglesias Ibáñez.
+    @author Daniel Iglesias .
     */
 template <class T> class IntegratorBaseImplicit : public IntegratorBase<T>{
 
@@ -67,7 +67,7 @@ public:
   virtual double getPartialQddot( ) = 0;
 
   /** Actualizes variables applying an increment. */
-  virtual void actualize( lmx::Vector<T> delta ) = 0;
+  virtual void integratorUpdate( lmx::Vector<T> delta ) = 0;
 };
 
 }; // namespace lmx

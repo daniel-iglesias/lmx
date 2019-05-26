@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   https://github.com/daniel-iglesias/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -30,7 +30,7 @@
 
       \brief This file contains both the declaration and implementation for type_stdmatrix (std::vector type) class member functions.
 
-      \author Daniel Iglesias Ib��ez
+      \author Daniel Iglesias
 
     */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -46,7 +46,7 @@ namespace lmx {
 
     @param contents Corresponds to a type std::vector< std::vector<T> >.
 
-    @author Daniel Iglesias Ib��ez.
+    @author Daniel Iglesias.
     */
 template <typename T> class Type_stdmatrix : public Data_mat<T>
 {
@@ -58,6 +58,7 @@ private:
 public:
 
   friend void copy<>( const Type_stdmatrix<T>*, Type_csc<T>*);
+  friend class DenseMatrix<T>;
 
 public:
     /// Empty constructor.
@@ -73,6 +74,8 @@ public:
     {
     }
 
+  void factorize(){}
+  
   void resize(size_type, size_type);
 
     /** Read element method.
@@ -88,8 +91,17 @@ public:
       * \param mrows Row position in dense matrix.
       * \param ncolumns Column position in dense matrix.
       * \param value Numerical type value. */
-  void writeElement(T value, size_type mrows, size_type ncolumns)
+  void writeElement(T value, const size_type& mrows, const size_type& ncolumns)
   { contents[mrows][ncolumns] = value; }
+  
+    /** Add element method.
+      * Implements a method for adding data on the Harwell-Boeing matrix.
+      * Copy-pasted from writeElement.
+      * \param mrows Row position in dense matrix.
+      * \param ncolumns Column position in dense matrix.
+      * \param value Numerical type value. */
+  inline void addElement(T value, const size_type& mrows, const size_type& ncolumns)
+  { contents[mrows][ncolumns] += value; }
   
    /** Method for knowing the number of data rows. 
     * \returns Number of rows.
@@ -178,7 +190,7 @@ public:
   }
 
   /** Method multiplying element-by-element of two matrices. One would be the object's contents and the other the parameter's contents.
-   * Necessary for implementing  Vector to Vector multElem.
+   * Necessary for implementing  Vector to Vector multElements.
    * \param matrix_in pointer to an object that belongs to a class derived from Data.
      */
   void multiplyElements(const Data<T>* matrix_in)
@@ -339,6 +351,32 @@ public:
       }
     }
   }
+
+  /**
+   * Clear method.
+   * Wipes all data.
+   */
+  void clear()
+  {
+    contents.clear();
+    resize(rows,cols);
+  }
+
+	//begin JCGO 18/03/09
+  /**
+   * Reset method.
+   */
+  void reset()
+  {
+  	for (size_type i=0; i<rows; ++i)
+  	{
+    	for (size_type j=0; j<cols; ++j)
+    	{
+    		contents[i][j] = static_cast<T>(0);
+    	}
+  	}
+  }
+  //end JCGO
 
   /** Data pointer method
    * Gives the direction in memory of (pointer to) the object.

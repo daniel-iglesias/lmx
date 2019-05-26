@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   http://code.google.com/p/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -29,7 +29,7 @@
      *
      * This basic facilities include all the linear algebra operations over Vectors and Matrices, Tensor algebra and linear systems solvers.
      *
-     * \author Daniel Iglesias Ibáñez
+     * \author Daniel Iglesias
      * 
      */
 //////////////////////////////////////////// Doxygen file documentation (end)

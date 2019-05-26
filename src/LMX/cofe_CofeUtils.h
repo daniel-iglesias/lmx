@@ -1,8 +1,10 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Jaime Planas, Jose M Sancho                     *
+ ***************************************************************************/
 /* 
 	CofeUtils.h
-
-	Author:			
-	Description:	<describe the utils class here>
+  Created by Jaime Planas.
+	Description:
 */
 
 #ifndef CofeUtils_H
@@ -11,6 +13,7 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <cstdlib>
 
 /** \namespace cofe{}
  *

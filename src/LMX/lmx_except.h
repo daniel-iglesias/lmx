@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2006 by Daniel Iglesias                                 *
- *   diglesiasib@mecanica.upm.es                                           *
+ *   http://code.google.com/p/lmx                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -44,6 +44,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 using std::endl; using std::cout; using std::cerr;
 using std::ends; using std::cin;
@@ -56,7 +57,7 @@ namespace lmx {
      *
      * \brief Exception handling classes, functions and macros.
      *
-     * \author Addapted by Daniel Iglesias Ibáñez
+     * \author Addapted by Daniel Iglesias
      * 
      */
 //////////////////////////////////////////// Doxygen file documentation (end)
@@ -251,7 +252,7 @@ namespace lmx {
   /** standard function for throwing errors */ 
 #define LMX_THROW(type, thestr) {                                    \
     std::stringstream msg;                                           \
-    msg << "Error in "__FILE__ << ", line "                          \
+    msg << "Error in " __FILE__ << ", line "                          \
         << __LINE__ << " " << LMX_PRETTY_FUNCTION << ": \n" << thestr << ends; \
     lmx::exception_callback::do_exception_callback(msg.str());       \
     throw (type)(msg.str());                                         \
@@ -290,7 +291,7 @@ namespace lmx {
   /** user function for throwing warning messages. */
 #define LMX_WARNING(level_, thestr) {                                 \
     std::stringstream msg;                                            \
-    msg << "Level " << level_ << " Warning in "__FILE__ << ", line "  \
+    msg << "Level " << level_ << " Warning in " __FILE__ << ", line "  \
         << __LINE__ << " " << LMX_PRETTY_FUNCTION << ": " << thestr << ends; \
     if ((level_) <= lmx::warning_level::level())                      \
        std::cerr << msg.str() << std::endl;                           \
