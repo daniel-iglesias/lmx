@@ -3,36 +3,37 @@
 
 #include <LMX/lmx.h>
 
-int main(){
-	
-typedef lmx::Matrix<double> dMatrix;
-typedef lmx::Vector<double> dVector;
+int main()
+{
 
-lmx::setMatrixType(0);
-lmx::setLinSolverType(0);
+    typedef lmx::Matrix<double> dMatrix;
+    typedef lmx::Vector<double> dVector;
 
-lmx::Matrix<double> A(4,4); // igual a dMatrix A(4,4);
-dMatrix B( A.rows(), A.cols() );
-dVector v(4);
+    lmx::setMatrixType(0);
+    lmx::setLinSolverType(0);
 
-A.fillRandom(10.);
-B.fillIdentity();
-v.fillIdentity();
+    lmx::Matrix<double> A(4,4); // igual a dMatrix A(4,4);
+    dMatrix B( A.rows(), A.cols() );
+    dVector v(4);
 
-dMatrix C( A );
+    A.fillRandom(10.);
+    B.fillIdentity();
+    v.fillIdentity();
 
-cout << A*B*C << endl ;
-cout << A+B-C << endl ;
-cout << A*v << endl ;
+    dMatrix C( A );
 
-dVector x(4);
+    cout << A*B*C << endl ;
+    cout << A+B-C << endl ;
+    cout << A*v << endl ;
 
-lmx::solveLinear(A,x,v);
-cout << "Solution: " << endl
-<< x << endl;
+    dVector x(4);
 
-std::ofstream fichero("matrix.tex");
-lmx::latexPrint(fichero, "mat", A, 3);
+    lmx::solveLinear(A,x,v);
+    cout << "Solution: " << endl
+         << x << endl;
 
-return 1;
+    std::ofstream fichero("matrix.tex");
+    lmx::latexPrint(fichero, "mat", A, 3);
+
+    return 1;
 }

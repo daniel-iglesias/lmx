@@ -22,48 +22,50 @@
 #define LMXINTEGRATOR_BASE_H
 
 //////////////////////////////////////////// Doxygen file documentation entry:
-    /*!
-      \file lmx_diff_integrator_base.h
-      
-      \brief IntegratorBase abstract class implementation
+/*!
+  \file lmx_diff_integrator_base.h
 
-      Implements the basic structure that will have the integrators that solve initial value problems.
+  \brief IntegratorBase abstract class implementation
 
-      \author Daniel Iglesias
+  Implements the basic structure that will have the integrators that solve initial value problems.
 
-    */
+  \author Daniel Iglesias
+
+*/
 //////////////////////////////////////////// Doxygen file documentation (end)
 
 #include "lmx_diff_configuration.h"
 
-namespace lmx {
+namespace lmx
+{
 
-    /**
-    \class IntegratorBase
-    \brief Template abstract class IntegratorBase.
-    
-    Integrator basic structure.
-    
-    @author Daniel Iglesias .
-    */
-template <class T> class IntegratorBase{
+/**
+\class IntegratorBase
+\brief Template abstract class IntegratorBase.
+
+Integrator basic structure.
+
+@author Daniel Iglesias .
+*/
+template <class T> class IntegratorBase
+{
 
 public:
 
-  /** Empty constructor. */
-  IntegratorBase(){}
+    /** Empty constructor. */
+    IntegratorBase() {}
 
-  /** Destructor. */
-  virtual ~IntegratorBase( ){}
+    /** Destructor. */
+    virtual ~IntegratorBase( ) {}
 
-  /** Setup the object. */
-  virtual void initialize( Configuration<T>* ) = 0;
+    /** Setup the object. */
+    virtual void initialize( Configuration<T>* ) = 0;
 
-  /** Returns 1 (TRUE) if it is an explicit-scheme integrator. */
-  virtual bool isExplicit() = 0;
+    /** Returns 1 (TRUE) if it is an explicit-scheme integrator. */
+    virtual bool isExplicit() = 0;
 
-  /** Actualization of the variables with non-actual configuration terms. */
-  virtual void advance( ) = 0;
+    /** Actualization of the variables with non-actual configuration terms. */
+    virtual void advance( ) = 0;
 };
 
 }; // namespace lmx
