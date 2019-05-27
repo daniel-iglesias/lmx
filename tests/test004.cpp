@@ -19,4 +19,15 @@ int main(int argc, char** argv){
   norma2 = b.norm2();
   cout << b << endl << "norma:" << norma2 << endl;
   
-} 
+  std::ofstream fout("test004.out");
+  fout << b << endl << "norma:" << norma2 << endl;
+  fout.close();
+
+  if (compareFiles("test004.out", "test004.verified")) {
+	  cout << "\nSUCCESS!!" << endl;
+	  return 0;
+  }
+  else {
+	  return 1;
+  }
+}

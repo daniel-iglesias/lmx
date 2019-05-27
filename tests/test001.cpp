@@ -32,7 +32,10 @@ int main(int argc, char** argv){
   fout.close();
 
   if(compareFiles("test001.out", "test001.verified")){
-	  cout << "SUCCESS" << endl;
+	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }
-} 
+  else {
+	  return 1;
+  }
+}

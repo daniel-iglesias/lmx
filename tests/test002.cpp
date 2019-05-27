@@ -28,4 +28,16 @@ int main(int argc, char** argv){
   cout << A << endl << b << endl;
   cout << x.getSolution();
   
-} 
+  std::ofstream fout("test002.out");
+  fout << A << endl << b << endl;
+  fout << x.getSolution();
+  fout.close();
+
+  if (compareFiles("test002.out", "test002.verified")) {
+	  cout << "\nSUCCESS!!" << endl;
+	  return 0;
+  }
+  else {
+	  return 1;
+  }
+}

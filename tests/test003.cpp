@@ -26,4 +26,15 @@ int main(int argc, char** argv){
   c.mult(A,b);
   cout << A << endl << b << endl << c << endl;
   
+  std::ofstream fout("test003.out");
+  fout << A << endl << b << endl << c << endl;
+  fout.close();
+
+  if (compareFiles("test003.out", "test003.verified")) {
+	  cout << "\nSUCCESS!!" << endl;
+	  return 0;
+  }
+  else {
+	  return 1;
+  }
 } 
