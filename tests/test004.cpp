@@ -23,7 +23,8 @@ int main(int argc, char** argv){
   fout << b << endl << "norma:" << norma2 << endl;
   fout.close();
 
-  if (compareFiles("test004.out", "test004.verified")) {
+  CompareDataFiles comparison;
+  if (comparison.compareFiles("test004.out", "test004.verified")) {
 	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }

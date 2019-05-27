@@ -17,53 +17,53 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 
 #ifndef LMXDATA_VEC_H
 #define LMXDATA_VEC_H
 
 #include"lmx_mat_data.h"
 
-//////////////////////////////////////////// Doxygen file documentation entry:
-    /*!
-      \file lmx_mat_data_vec.h
-      
-      \brief This file contains the declaration of the data_vec class' pure virtual functions.
-      
-      For classes derived from Data_vec pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
-      
-      \author Daniel Iglesias Ib�ez
-      
-    */
-//////////////////////////////////////////// Doxygen file documentation (end)
+ //////////////////////////////////////////// Doxygen file documentation entry:
+	 /*!
+	   \file lmx_mat_data_vec.h
+
+	   \brief This file contains the declaration of the data_vec class' pure virtual functions.
+
+	   For classes derived from Data_vec pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
+
+	   \author Daniel Iglesias Ib�ez
+
+	 */
+	 //////////////////////////////////////////// Doxygen file documentation (end)
 
 namespace lmx {
 
-    /**
-    \class Data_vec 
-    \brief Template class Data_vec.
-    Container for Vector data.
-    
-    This class represents the skeleton for the data container used by the Vector class. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in the Vector class.
-    
-    @author Daniel Iglesias Ib�ez.
-    */
-template <typename T> class Data_vec : public Data<T>{
-public:
+	/**
+	\class Data_vec
+	\brief Template class Data_vec.
+	Container for Vector data.
 
-  /** Empty constructor. */
-  Data_vec(){}
+	This class represents the skeleton for the data container used by the Vector class. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in the Vector class.
 
-  /** Destructor. */
-  virtual ~Data_vec(){}
+	@author Daniel Iglesias Ib�ez.
+	*/
+	template <typename T> class Data_vec : public Data<T> {
+	public:
 
-  /** Read file */
-  virtual void readDataFile(const char*) = 0;
+		/** Empty constructor. */
+		Data_vec() {}
 
-  /** Write file */
-  virtual void writeDataFile(const char*) = 0;
+		/** Destructor. */
+		virtual ~Data_vec() {}
 
-};
+		/** Read file */
+		virtual void readDataFile(const char*) = 0;
+
+		/** Write file */
+		virtual void writeDataFile(const char*) = 0;
+
+	};
 
 };
 

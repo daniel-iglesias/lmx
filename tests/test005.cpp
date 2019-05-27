@@ -50,7 +50,8 @@ int main(int argc, char** argv){
 
   fout.close();
 
-  if (compareFiles("test005.out", "test005.verified")) {
+  CompareDataFiles comparison;
+  if (comparison.compareFiles("test005.out", "test005.verified")) {
 	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }

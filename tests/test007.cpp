@@ -198,7 +198,8 @@ int main(int argc, char *argv[])
 
   fout.close();
 
-  if (compareFiles("test007.out", "test007.verified")) {
+  lmx::CompareDataFiles comparison;
+  if (comparison.compareFiles("test007.out", "test007.verified")) {
 	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }

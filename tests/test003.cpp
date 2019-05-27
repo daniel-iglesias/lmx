@@ -30,7 +30,8 @@ int main(int argc, char** argv){
   fout << A << endl << b << endl << c << endl;
   fout.close();
 
-  if (compareFiles("test003.out", "test003.verified")) {
+  CompareDataFiles comparison;
+  if (comparison.compareFiles("test003.out", "test003.verified")) {
 	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }

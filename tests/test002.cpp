@@ -33,7 +33,8 @@ int main(int argc, char** argv){
   fout << x.getSolution();
   fout.close();
 
-  if (compareFiles("test002.out", "test002.verified")) {
+  CompareDataFiles comparison;
+  if (comparison.compareFiles("test002.out", "test002.verified")) {
 	  cout << "\nSUCCESS!!" << endl;
 	  return 0;
   }

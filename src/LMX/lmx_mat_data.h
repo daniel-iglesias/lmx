@@ -21,120 +21,120 @@
 #define LMXDATA_H
 
 #ifdef HAVE_GMM
-  #include "gmm/gmm.h"
+#include "gmm/gmm.h"
 #endif
 
 #include "lmx_mat_data_blas.h"
 
-//////////////////////////////////////////// Doxygen file documentation entry:
-    /*!
-      \file lmx_mat_data.h
-      
-      \brief This file contains the declaration of the data class' pure virtual functions.
-      
-      For classes derived from Data pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
-      
-      \author Daniel Iglesias
-      
-    */
-//////////////////////////////////////////// Doxygen file documentation (end)
+ //////////////////////////////////////////// Doxygen file documentation entry:
+	 /*!
+	   \file lmx_mat_data.h
 
-/** Member size_type is a redefinition of the numeric type used for indexing the matrices. Actually, it's defined as size_t integer.
-*   */
+	   \brief This file contains the declaration of the data class' pure virtual functions.
+
+	   For classes derived from Data pure virtual class, all these methods must be implemented. Thus, for comprobation and checking, the methods here declared are as well documented.
+
+	   \author Daniel Iglesias
+
+	 */
+	 //////////////////////////////////////////// Doxygen file documentation (end)
+
+	 /** Member size_type is a redefinition of the numeric type used for indexing the matrices. Actually, it's defined as size_t integer.
+	 *   */
 typedef size_t size_type;
 
 namespace lmx {
 
-    /**
-    \class Data
-    \brief Template class Data.
-    Mother class for Data_mat & Data_vec.
-    
-    This class represents the skeleton for the data container used by the Vector and Matrix classes. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in the Vector class.
-    
-    @author Daniel Iglesias.
-    */
-template <typename T> class Data{
-public:
+	/**
+	\class Data
+	\brief Template class Data.
+	Mother class for Data_mat & Data_vec.
 
-  /** Empty constructor.
-   */
-  Data(){}
+	This class represents the skeleton for the data container used by the Vector and Matrix classes. No parameter nor function implementation here, just pure virtual class. See derived classes for details in implementation. Also maybe useful to see how this class is used in the Vector class.
 
-  /** Destructor. 
-   */
-  virtual ~Data(){}
+	@author Daniel Iglesias.
+	*/
+	template <typename T> class Data {
+	public:
 
-  /** Resize method for augmenting or reducing the container's dimension.
-   */
-  virtual void resize(size_type, size_type) = 0;
+		/** Empty constructor.
+		 */
+		Data() {}
 
-  /** Read method for accesing stored data.
-   * \returns Value of the data stored in the (size_type,size_type) position.
-   */
-  virtual const T& readElement(const size_type&, const size_type&) const = 0;
+		/** Destructor.
+		 */
+		virtual ~Data() {}
 
-  /** Write method for storing data.
-   */
-  virtual void writeElement(T, const size_type&, const size_type&) = 0;
+		/** Resize method for augmenting or reducing the container's dimension.
+		 */
+		virtual void resize(size_type, size_type) = 0;
 
-  /** Write method for adding to data.
-   */
-  virtual void addElement(T, const size_type&, const size_type&) = 0;
+		/** Read method for accesing stored data.
+		 * \returns Value of the data stored in the (size_type,size_type) position.
+		 */
+		virtual const T& readElement(const size_type&, const size_type&) const = 0;
 
-  /** Method for knowing the number of data rows. 
-   * \returns Number of rows.
-   */
-  virtual size_type getRows() const = 0;
+		/** Write method for storing data.
+		 */
+		virtual void writeElement(T, const size_type&, const size_type&) = 0;
 
-  /** Method for knowing the number of data columns. 
-   * \returns Number of columns.
-   */
-  virtual size_type getCols() const = 0;
+		/** Write method for adding to data.
+		 */
+		virtual void addElement(T, const size_type&, const size_type&) = 0;
 
-  /** Method for equaling object's data to the parameter's data.
-   * Necessary for implementing the "=" overloaded operator method in Vector and Vector class types.
-   */
-  virtual void equals(const Data*) = 0;
+		/** Method for knowing the number of data rows.
+		 * \returns Number of rows.
+		 */
+		virtual size_type getRows() const = 0;
 
-  /** Method for adding object's data to the parameter's data.
-   * Necessary for implementing the "+=" overloaded operator method in Vector and Vector class types.
-   */
-  virtual void add(const Data*) = 0;
+		/** Method for knowing the number of data columns.
+		 * \returns Number of columns.
+		 */
+		virtual size_type getCols() const = 0;
 
-  /** Method for substracting object's data from the parameter's data.
-   * Necessary for implementing the "-=" overloaded operator method in Vector and Vector class types.
-   */
-  virtual void substract(const Data*) = 0;
+		/** Method for equaling object's data to the parameter's data.
+		 * Necessary for implementing the "=" overloaded operator method in Vector and Vector class types.
+		 */
+		virtual void equals(const Data*) = 0;
 
-  /** Method for multiplying a scalar with an array and saving the result in the object's data.
-   * Necessary for implementing the "*" overloaded operator method with scalars in Vector class type.
-   */
-  virtual void multiplyScalar(const T&) = 0;
-  
-  /** Method multiplying element-by-element of two arrays. One would be the object's contents and the other the parameter's contents.
-   * Necessary for implementing  Vector to Vector multElements.
-   */
-  virtual void multiplyElements(const Data*) = 0;
-  
-  /**
-   * Method for cleaning all elements below a given factor.
-   */
-  virtual void cleanBelow(const double) = 0;
+		/** Method for adding object's data to the parameter's data.
+		 * Necessary for implementing the "+=" overloaded operator method in Vector and Vector class types.
+		 */
+		virtual void add(const Data*) = 0;
 
-  /**
-   * Method for clearing all elements.
-   */
-  virtual void clear() = 0;
+		/** Method for substracting object's data from the parameter's data.
+		 * Necessary for implementing the "-=" overloaded operator method in Vector and Vector class types.
+		 */
+		virtual void substract(const Data*) = 0;
 
-	//begin JCGO 18/03/09
-  /**
-   * Method for all elements to 0
-   */
-  virtual void reset() = 0;
-  //end JCGO
+		/** Method for multiplying a scalar with an array and saving the result in the object's data.
+		 * Necessary for implementing the "*" overloaded operator method with scalars in Vector class type.
+		 */
+		virtual void multiplyScalar(const T&) = 0;
 
-};
+		/** Method multiplying element-by-element of two arrays. One would be the object's contents and the other the parameter's contents.
+		 * Necessary for implementing  Vector to Vector multElements.
+		 */
+		virtual void multiplyElements(const Data*) = 0;
+
+		/**
+		 * Method for cleaning all elements below a given factor.
+		 */
+		virtual void cleanBelow(const double) = 0;
+
+		/**
+		 * Method for clearing all elements.
+		 */
+		virtual void clear() = 0;
+
+		//begin JCGO 18/03/09
+	  /**
+	   * Method for all elements to 0
+	   */
+		virtual void reset() = 0;
+		//end JCGO
+
+	};
 
 };
 
