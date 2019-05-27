@@ -85,6 +85,9 @@ private:
 
 int main(int argc, char** argv)
 {
+    std::ofstream fout("test014.out");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(fout.rdbuf()); //redirect std::cout to fout
 
     lmx::setMatrixType( 0 );
     lmx::setVectorType( 0 );
@@ -110,5 +113,26 @@ int main(int argc, char** argv)
     theProblem.setConvergence( 1E-5 );
     theProblem.solve();
 
-    return EXIT_SUCCESS;
+    cout << "End configuration: " << theProblem.getConfiguration( 0, 0);
+
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+    fout.close();
+    std::ifstream fin("test014.out");
+    std::string line;
+
+    while(std::getline(fin, line))  //input from the file fin
+       {
+           std::cout << line << "\n";   //output to stdout
+       }
+
+    lmx::CompareDataFiles comparison;
+    if (comparison.compareFiles("test014.out", "test014.verified"))
+    {
+        cout << "\nSUCCESS!!" << endl;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }

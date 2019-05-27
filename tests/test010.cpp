@@ -1,4 +1,22 @@
-// #define HAVE_GMM
+/***************************************************************************
+ *   Copyright (C) 2007 by Daniel Iglesias                                 *
+ *   daniel@extremo                                                        *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
 
 #include "LMX/lmx.h"
 #include "LMX/lmx_nlsolvers.h"
@@ -46,6 +64,9 @@ private:
 
 int main(int argc, char** argv)
 {
+    std::ofstream fout("test010.out");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(fout.rdbuf()); //redirect std::cout to fout
 
     setMatrixType(0);
     setVectorType(0);
@@ -64,7 +85,28 @@ int main(int argc, char** argv)
     theSolver.setJacobian( &MyExternalSystem::jacobiano );
     theSolver.setConvergence( &MyExternalSystem::convergence );
     theSolver.solve( 100 );
-    cout << "Resultado: " << theSolver.getSolution() << endl;
+    cout << "Result: " << theSolver.getSolution() << endl;
+
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+    fout.close();
+    std::ifstream fin("test010.out");
+    std::string line;
+
+    while(std::getline(fin, line))  //input from the file fin
+       {
+           std::cout << line << "\n";   //output to stdout
+       }
+
+    lmx::CompareDataFiles comparison;
+    if (comparison.compareFiles("test010.out", "test010.verified"))
+    {
+        cout << "\nSUCCESS!!" << endl;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 

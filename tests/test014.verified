@@ -1,9 +1,11 @@
 --------------------------------------------------------
 An initial condition has been set:
-Derivative order = 0--------------------------------------------------------
+Derivative order = 0, size of vector = 2
+--------------------------------------------------------
 --------------------------------------------------------
 An initial condition has been set:
-Derivative order = 1--------------------------------------------------------
+Derivative order = 1, size of vector = 2
+--------------------------------------------------------
 --------------------------------------------------------
 Configuration has been resized to the following vectors:
 Derivative order = 0, time line size = 2
@@ -885,3 +887,6 @@ Derivative order = 2, time line size = 2
 	0	4.774e-01	4.132e-01	1.651e-04
 	1	0.000e+00	0.000e+00	
 
+End configuration: Vector (2) = 
+2.39 
+3.07 

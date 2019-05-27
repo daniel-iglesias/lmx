@@ -54,6 +54,9 @@ public:
 
 int main(int argc, char** argv)
 {
+    std::ofstream fout("test011.out");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(fout.rdbuf()); //redirect std::cout to fout
 
     lmx::setMatrixType( 0 );
     lmx::setVectorType( 0 );
@@ -73,5 +76,24 @@ int main(int argc, char** argv)
 
     cout << "End configuration: " << theProblem.getConfiguration( 0, 0);
 
-    return EXIT_SUCCESS;
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+    fout.close();
+    std::ifstream fin("test011.out");
+    std::string line;
+
+    while(std::getline(fin, line))  //input from the file fin
+       {
+           std::cout << line << "\n";   //output to stdout
+       }
+
+    lmx::CompareDataFiles comparison;
+    if (comparison.compareFiles("test011.out", "test011.verified"))
+    {
+        cout << "\nSUCCESS!!" << endl;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }

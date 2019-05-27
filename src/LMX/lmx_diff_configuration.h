@@ -78,7 +78,7 @@ public:
         : vectorSize( 0 )
         , verbose( 1 )
         , lastStepSize(0)
-        , steps(1)
+        , steps(0)
         , presentTime(t_o)
     { /*time.push_back( t_o );*/ }
 
@@ -124,7 +124,8 @@ public:
     int getTimeSize( )
 //     { return this->time.size(); }
     {
-        return steps;
+        return steps+1; // this is needed as steps are increased at the end of the iteration, 
+                        // but time is defined at the beginning
     }
 
     /**
@@ -162,7 +163,7 @@ public:
 //       { time.push_back( time_in ); }
     {
         presentTime = time_in;
-        ++steps;
+        // ++steps; // Seems redundant as this is done within nextStep(...) function
     }
 
     void setInitialCondition( int diff_order, lmx::Vector<T>& q_o );

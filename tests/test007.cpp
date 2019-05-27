@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     fout << "D.mult(B,A) = " << D << endl;
 // This cannot be done!
 //  D.mult(B,D);
-//  cout, fout << "D.mult(B,D) = " << D << endl;
+//  cout << "D.mult(B,D) = " << D << endl;
     D.mult(A,C);
     cout << "D.mult(A,C) = " << D << endl;
     fout << "D.mult(A,C) = " << D << endl;

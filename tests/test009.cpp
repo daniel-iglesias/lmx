@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
     dDenseMatrix B;
     double scalar = 10.5;
 
+    std::ofstream fout("test009.out");
+
     B.resize(size,size);
     A.fillIdentity(2);
     B.fillIdentity(3);
@@ -58,100 +60,154 @@ int main(int argc, char *argv[])
 
     // Not efficient overloaded operators between Matrix<T> and DenseMatrix<T>
     cout << "A = " << A << endl;
+    fout << "A = " << A << endl;
     cout << "B = " << B << endl;
-    cout << "A+B = " <<  A+B << endl;
-    cout << "A-B = " <<  A-B << endl;
-    cout << "A*B = " <<  A*B << endl;
+    fout << "B = " << B << endl;
+    cout << "A+B = " << A + B << endl;
+    fout << "A+B = " << A + B << endl;
+    cout << "A-B = " << A - B << endl;
+    fout << "A-B = " << A - B << endl;
+    cout << "A*B = " << A * B << endl;
+    fout << "A*B = " << A * B << endl;
 
-    cout << "B+A = " <<  B+A << endl;
-    cout << "B-A = " <<  B-A << endl;
-    cout << "B*A = " <<  B*A << endl;
+    cout << "B+A = " << B + A << endl;
+    fout << "B+A = " << B + A << endl;
+    cout << "B-A = " << B - A << endl;
+    fout << "B-A = " << B - A << endl;
+    cout << "B*A = " << B * A << endl;
+    fout << "B*A = " << B * A << endl;
 
 //   Efficient overloaded operators between Matrix<T> and DenseMatrix<T>
 //   with the Matrix<T> C as lvalue
     C=-B;
     cout << "C=-B = " << C << endl;
-    cout << "C+=A+B = " << (C+=A+B) << endl;
+    fout << "C=-B = " << C << endl;
+    C += A + B;
+    cout << "C+=A+B = " << C << endl;
+    fout << "C+=A+B = " << C << endl;
     C-=B;
     cout << "C-=B = " << C << endl;
+    fout << "C-=B = " << C << endl;
 
 //   Efficient overloaded operators between DenseMatrix<T> and Matrix<T>
 //   with the DenseMatrix<T> D as lvalue
     D=C;
     cout << "D = " << D << endl;
+    fout << "D = " << D << endl;
     A.fillIdentity();
-    cout << "D+=A = " << (D+=A) << endl;
+    D += A;
+    cout << "D+=A = " << D << endl;
+    fout << "D+=A = " << D << endl;
     D-=A;
     cout << "D-=A = " << D << endl;
+    fout << "D-=A = " << D << endl;
     cout << "scalar = " << (scalar) << endl;
-    cout << "D*=scalar = " << (D*=scalar) << endl;
+    fout << "scalar = " << (scalar) << endl;
+    D *= scalar;
+    cout << "D*=scalar = " << D << endl;
+    fout << "D*=scalar = " << D << endl;
 
     // Nested operators:
     lmx::Vector<float> v(size);
     v.fillIdentity();
     double data=v*(A*B*D*C*v);
     cout << "data=v*(A*B+D*C*v) = " << data << endl;
+    fout << "data=v*(A*B+D*C*v) = " << data << endl;
 
     ///////////////////////////////////////////////////////////////////////////
     // OPERATION SPECIALIZED MEMBER FUNCTIONS:
     ///////////////////////////////////////////////////////////////////////////
 
     cout << "A = " << A << endl;
+    fout << "A = " << A << endl;
     cout << "B = " << B << endl;
+    fout << "B = " << B << endl;
     //   Call from a Matrix Object:
     C.add(A,B);
     cout << "C.add(A,B) = " << C << endl;
+    fout << "C.add(A,B) = " << C << endl;
     C.add(B,A);
     cout << "C.add(B,A) = " << C << endl;
+    fout << "C.add(B,A) = " << C << endl;
     C.subs(A,B);
     cout << "C.subs(A,B) = " << C << endl;
+    fout << "C.subs(A,B) = " << C << endl;
     C.subs(B,A);
     cout << "C.subs(B,A) = " << C << endl;
+    fout << "C.subs(B,A) = " << C << endl;
     C.mult(A,B);
     cout << "C.mult(A,B) = " << C << endl;
+    fout << "C.mult(A,B) = " << C << endl;
     C.mult(B,A);
     cout << "C.mult(B,A) = " << C << endl;
+    fout << "C.mult(B,A) = " << C << endl;
     C.mult(B,D);
     cout << "C.mult(B,D) = " << C << endl;
+    fout << "C.mult(B,D) = " << C << endl;
     C.multElements(A,B);
     cout << "C.multElements(A,B) = " << C << endl;
+    fout << "C.multElements(A,B) = " << C << endl;
     C.multElements(B,A);
     cout << "C.multElements(B,A) = " << C << endl;
+    fout << "C.multElements(B,A) = " << C << endl;
     C.multElements(B,D);
     cout << "C.multElements(B,D) = " << C << endl;
+    fout << "C.multElements(B,D) = " << C << endl;
 
 //   Call from a DenseMatrix Object:
     cout << "A = " << A << endl;
+    fout << "A = " << A << endl;
     cout << "B = " << B << endl;
+    fout << "B = " << B << endl;
     D.add(A,B);
     cout << "D.add(A,B) = " << D << endl;
+    fout << "D.add(A,B) = " << D << endl;
     D.add(B,A);
     cout << "D.add(B,A) = " << D << endl;
+    fout << "D.add(B,A) = " << D << endl;
     D.subs(A,B);
     cout << "D.subs(A,B) = " << D << endl;
+    fout << "D.subs(A,B) = " << D << endl;
     D.subs(B,A);
     cout << "D.subs(B,A) = " << D << endl;
+    fout << "D.subs(B,A) = " << D << endl;
     D.mult(A,B);
     cout << "D.mult(A,B) = " << D << endl;
+    fout << "D.mult(A,B) = " << D << endl;
     D.mult(B,A);
     cout << "D.mult(B,A) = " << D << endl;
+    fout << "D.mult(B,A) = " << D << endl;
 // This cannot be done!
 //  D.mult(B,D);
 //  cout << "D.mult(B,D) = " << D << endl;
     D.mult(A,C);
     cout << "D.mult(A,C) = " << D << endl;
+    fout << "D.mult(A,C) = " << D << endl;
     D.multElements(A,B);
     cout << "D.multElements(A,B) = " << D << endl;
+    fout << "D.multElements(A,B) = " << D << endl;
     D.multElements(B,A);
     cout << "D.multElements(B,A) = " << D << endl;
+    fout << "D.multElements(B,A) = " << D << endl;
     D.multElements(B,D);
     cout << "D.multElements(B,D) = " << D << endl;
+    fout << "D.multElements(B,D) = " << D << endl;
     D.multElements(A,C);
     cout << "D.multElements(A,C) = " << D << endl;
+    fout << "D.multElements(A,C) = " << D << endl;
 
+    fout.close();
 
-
-    return EXIT_SUCCESS;
+    lmx::CompareDataFiles comparison;
+    if (comparison.compareFiles("test009.out", "test009.verified"))
+    {
+        cout << "\nSUCCESS!!" << endl;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 

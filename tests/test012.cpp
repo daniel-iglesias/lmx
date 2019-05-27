@@ -80,6 +80,9 @@ private:
 
 int main(int argc, char** argv)
 {
+    std::ofstream fout("test012.out");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(fout.rdbuf()); //redirect std::cout to fout
 
     lmx::setMatrixType( 0 );
     lmx::setVectorType( 0 );
@@ -102,5 +105,24 @@ int main(int argc, char** argv)
     theProblem.setJacobian( &MyDiffSystem::myTangent );
     theProblem.solve();
 
-    return EXIT_SUCCESS;
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+    fout.close();
+    std::ifstream fin("test012.out");
+    std::string line;
+
+    while(std::getline(fin, line))  //input from the file fin
+       {
+           std::cout << line << "\n";   //output to stdout
+       }
+
+    lmx::CompareDataFiles comparison;
+    if (comparison.compareFiles("test012.out", "test012.verified"))
+    {
+        cout << "\nSUCCESS!!" << endl;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
